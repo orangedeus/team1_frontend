@@ -1,9 +1,12 @@
 import React, { useRef } from 'react';
-import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
+import { Map, Marker, Circle, CircleMarker, Popup, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
 import Bounce from 'react-reveal/Bounce';
 import L from 'leaflet';
+import Annotation from './Annotation';
+import axios from 'axios';
+
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -17,46 +20,27 @@ class MapIndex extends React.Component {
     constructor(props) {
         super(props)
         this.mapRef = React.createRef();
-        this.state = {
-            position: [14.648991666666666, 121.06889166666666],
-        }
-    }
-    componentDidUpdate() {
-        console.log(this.mapRef)
-        this.mapRef.current.leafletElement.closePopup();
-        if (this.props.stops.length !== 0) {
-            this.mapRef.current.leafletElement.setView(
-                this.props.stops[0].coordinate,
-                this.mapRef.current.leafletElement.getZoom(),
-                {
-                    "animate": true,
-                    "pan": {
-                        "duration": 1
-                    }
-                }
-            );
-        }
+        this.defCenter = [0, 0]
     }
     render() {
         let markerRender = []
+        let position = []
         for (let i = 0; i < this.props.stops.length; i++) {
-            let coord = this.props.stops[i].coordinate
-            console.log(coord)
+            let coord = [this.props.stops[i].location.x, this.props.stops[i].location.y]
+            let people = this.props.stops[i].people
             markerRender.push(
-                <Marker position={coord}>
-                    <Popup>
-                        People - {this.props.stops[i].people}
-                    </Popup>
-                </Marker>
+                <Circle key={i} center={coord} radius={Math.ceil(people) * 15} />
             )
         }
         return(
-            <Map ref={this.mapRef} center={this.state.position} zoom={20} className='MapContainer'>
-                <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                {markerRender}
-            </Map>
+            <div className='MapContainer'>
+                {this.props.load && <Map ref={this.mapRef} center={this.props.stops.length ? [this.props.stops[0].location.x, this.props.stops[0].location.y] : [0, 0]} zoom={20} className='MapContainer'>
+                    <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    {markerRender}
+                </Map>}
+            </div>
         )
     }
 }

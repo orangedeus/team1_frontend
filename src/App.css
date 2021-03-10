@@ -4,6 +4,10 @@
   min-height: 100vh;
   min-width: 100vw;
   overflow: auto;
+  background-image: url('temp-bg2.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: bottom;
 }
 
 .App-logo {
@@ -20,6 +24,45 @@
 .MapContainer {
   height: 85%;
   width: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.upload {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.thirtyfive {
+  display: flex;
+  width: 35%;
+  min-height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+.hundred {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-padding {
+  margin-top: 7rem;
+}
+
+.progressBar{
+  height: 1rem;
+  width: 0%;
+  background-color: rgb(68, 212, 231);
+  color: white;
+  padding: 2px;
+  border-radius: 5px;
+  text-align: center;
 }
 
 .fifty {
@@ -28,6 +71,47 @@
   min-height: 100%;
   justify-content: center;
   align-items: center;
+}
+.submit-cont {
+  margin-top: 0.5vh;
+}
+.annotate {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.navBar {
+  width: 640px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.annotate-box {
+  font-size: 16px;
+  text-align: center;
+}
+
+.btn2 {
+  border-radius: 15px;
+  border: none;
+  background-color: #00A1C6;
+  color: white;
+  font-size: 16px;
+  padding: 5px;
+  cursor: pointer;
+  margin: 0.5vw;
+}
+
+.upload-margin {
+  margin-bottom: 0.5rem;
+}
+
+.btn2:hover {
+  background-color: #00F7F7;
 }
 
 .entries {
@@ -82,4 +166,71 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+
+.links {
+  list-style-type: none;
+  display: flex;
+  flex-direction: row;
+
+  margin: 0;
+  padding: 0;
+}
+.link-nodecor {
+  text-decoration: none;
+  color: black;
+}
+.btn1 {
+  border: none;
+  background-color: transparent;
+
+  margin: 12px;
+
+  cursor: pointer;
+
+
+  font-size: 24px;
+  font-family: 'Poppins', sans-serif;
+  color: #555;
+}
+.btn1:hover {
+  color: black;
+}
+.btn1-2 {
+  border: none;
+  background-color: transparent;
+
+  margin: 12px;
+
+  cursor: pointer;
+
+
+  font-size: 20px;
+  font-family: 'Poppins', sans-serif;
+  color: #555;
+}
+.btn1-2:hover {
+  color: black;
+}
+
+.third {
+  margin-right: 4rem;
+}
+
+.Header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background-color: white;
+
+  padding: 10px;
+  z-index: 10000000;
 }

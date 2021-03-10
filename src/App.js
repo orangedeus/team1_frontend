@@ -1,98 +1,89 @@
 import React from 'react';
 import logo from './logo.svg';
 import MapIndex from './MapIndex';
+import Header from './Header';
+import Annotation from './Annotation';
+import Upload from './Upload';
 import './App.css';
 import Fade from 'react-reveal/Fade';
-
-const data = [
-    {
-      'date': '2020-10-19',
-      'stops': [
-          {
-              'coordinate': [14.64961111111111, 121.06869722222221],
-              'people': '34'
-          },
-          {
-              'coordinate': [14.648991666666666, 121.06889166666666],
-              'people': '56'
-          },
-          {
-              'coordinate': [14.650947222222223, 121.06841944444444],
-              'people': '78'
-          }
-      ]
-    },
-    {
-      'date': '2020-10-20',
-      'stops': [
-          {
-              'coordinate': [14.652377777777778, 121.06812222222221],
-              'people': '3'
-          },
-          {
-              'coordinate': [14.651905555555556, 121.06681388888889],
-              'people': '102'
-          },
-          {
-              'coordinate': [14.652891666666667, 121.0630861111111],
-              'people': '12'
-          }
-      ]
-    },
-    {
-      'date': '2020-10-21',
-      'stops': [
-          {
-              'coordinate': [14.647616666666666, 121.06337777777777],
-              'people': '7'
-          },
-          {
-              'coordinate': [14.647691666666667, 121.06394722222223],
-              'people': '12'
-          },
-          {
-              'coordinate': [14.647683333333333, 121.06437222222222],
-              'people': '80'
-          },
-          {
-              'coordinate': [14.647958333333333, 121.06580277777778],
-              'people': '10'
-          }
-      ]
-    }
-  ]
+import axios from 'axios';
+import { 
+  BrowserRouter as Router, 
+  Route, 
+  Link, 
+  Switch 
+} from 'react-router-dom'; 
 
 class App extends React.Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
     this.state = {
-      data: data,
-      curr_stops: []
+      stops1: [],
+      stops2: [],
+      stops3: [],
+      stops4: [],
+      loaded1: 0,
+      loaded2: 0,
+      loaded3: 0,
+      loaded4: 0
     }
   }
-  loadMarker = (et) => {
-    this.setState({curr_stops: this.state.data[parseInt(et.target.innerHTML) - 1].stops})
-  } 
+  componentDidMount() {
+    axios.get(`http://localhost:3001/stops/all`).then(res => {
+      this.setState({stops1: res.data.data, loaded1: 1})
+    })
+    .catch(e => {
+      console.log(e)
+    })
+    axios.get(`http://localhost:3001/stops/all/cleaned`).then(res => {
+      this.setState({stops2: res.data.data, loaded2: 1})
+    })
+    .catch(e => {
+      console.log(e)
+    })
+    axios.get(`http://localhost:3001/stops/all/annotated`).then(res => {
+      this.setState({stops3: res.data.data, loaded3: 1})
+    })
+    .catch(e => {
+      console.log(e)
+    })
+    axios.get(`http://localhost:3001/stops/all/clean_annotated`).then(res => {
+      this.setState({stops4: res.data.data, loaded4: 1})
+    })
+    .catch(e => {
+      console.log(e)
+    })
+  }
+  handleUpdate = (stops) => {
+    this.setState({stops: stops})
+  }
   render() {
-    let items = []
-    for (var i = 0; i < this.state.data.length; i++) {
-      items.push(
-        <button className='entry' onClick={this.loadMarker}>
-          {i + 1}
-        </button>
-      )
-    }
+    console.log(this.state.stops1)
+    console.log(this.state.stops2)
+    console.log(this.state.stops3)
+    console.log(this.state.stops4)
     return(
-      <div className="App">
-        <div className='fifty'>
-          <div className='entries'>
-            {items}
-          </div>
+      <Router>
+        <div className="App">
+          <Header />
+          <Switch>
+            <Route path='/upload' render>
+              <Upload />
+            </Route>
+            <Route path='/annotation' render>
+              <Annotation stops={this.state.stops3} onUpdate={this.handleUpdate}/>
+            </Route>
+            <Route path='/' render>
+              <div className='hundred header-padding'>
+                <MapIndex stops={this.state.stops1} load={this.state.loaded1}/>
+                <MapIndex stops={this.state.stops2} load={this.state.loaded2}/>
+                <MapIndex stops={this.state.stops3} load={this.state.loaded3}/>
+                <MapIndex stops={this.state.stops4} load={this.state.loaded4}/>
+              </div>
+            </Route>   
+          </Switch>
         </div>
-        <div className='fifty'>
-          <MapIndex stops={this.state.curr_stops}/>
-        </div>
-      </div>
+      </Router>
     )
   }
 }
