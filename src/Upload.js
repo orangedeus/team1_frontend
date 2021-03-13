@@ -19,7 +19,7 @@ function Upload() {
 
     const uploadFile = () => {
         const formData = new FormData()
-        const url = "http://localhost:3001/process"
+        const url = "http://ec2-54-254-178-22.ap-southeast-1.compute.amazonaws.com:3001/process"
         console.log(files)
         for (const key of Object.keys(files)) {
             formData.append('upload', files[key])

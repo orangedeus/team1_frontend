@@ -8,7 +8,7 @@ var start, end;
 class Annotation extends React.Component {
     constructor(props) {
         super(props)
-        this.url = 'http://localhost:3001/videos/'
+        this.url = "http://ec2-54-254-178-22.ap-southeast-1.compute.amazonaws.com:3001"
         this.start = ''
         this.end = ''
         this.state = {
@@ -29,14 +29,18 @@ class Annotation extends React.Component {
         this.props.onUpdate(this.state.stops)
     }
     handleSubmit = () => {
+        let thisStop = this.state.stops[this.state.currIndex]
         this.end = new Date()
         let input = document.getElementById('people')
         let newPeople = input.value
+        let time = 0
         if (this.start !== '') {
-            console.log((this.end - this.start) / 1000)
+            time = (this.end - this.start) / 1000
         }
+        let instrumentation = {time: time, code: this.props.userCode, file: thisStop.url}
+        console.log(instrumentation)
         let currStop = this.state.stops[this.state.currIndex]
-        axios.post('http://localhost:3001/stops/update',
+        axios.post(this.url + '/stops/update',
             {
                 location: {
                     x: currStop.location.x,
@@ -48,6 +52,9 @@ class Annotation extends React.Component {
             input.value = ''
             console.log(res)
         })
+        axios.post(this.url + '/instrumentation',
+            instrumentation
+        )
         let newStops = this.state.stops
         newStops[this.state.currIndex].people = newPeople
         this.setState({stops: newStops})
@@ -57,16 +64,20 @@ class Annotation extends React.Component {
         this.start = new Date()
     }
     handleNext = () => {
+        this.start = ''
+        this.end = ''
         this.setState({currIndex: this.state.currIndex + 1});
     }
     handlePrev = () => {
+        this.start = ''
+        this.end = ''
         this.setState({currIndex: this.state.currIndex - 1});
     }
     render() {
         let currStop = this.state.stops[this.state.currIndex]
         return(
             <div key={"annotate" + this.state.currIndex} className="annotate header-padding">
-                {currStop && <ReactPlayer playing={this.state.playing} url={this.url + currStop.url} stopOnUnmount={true} onStart={this.handleStart} width={640} height={360} controls={true}/>}
+                {currStop && <ReactPlayer playing={this.state.playing} url={this.url + '/videos/' + currStop.url} stopOnUnmount={true} onStart={this.handleStart} width={640} height={360} controls={true}/>}
                 {currStop && 
                 <div className="submit-cont">
                     <input className='annotate-box' placeholder={currStop.people} type='number' id='people'/>

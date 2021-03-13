@@ -4,7 +4,6 @@
   min-height: 100vh;
   min-width: 100vw;
   overflow: auto;
-  background-image: url('temp-bg2.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: bottom;
@@ -27,6 +26,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 0;
 }
 
 .upload {
@@ -181,6 +181,20 @@
   text-decoration: none;
   color: black;
 }
+
+.ReactModal__Overlay {
+    opacity: 1;
+    transition: opacity 1000ms ease-in-out;
+}
+
+.ReactModal__Overlay--after-open{
+    opacity: 1;
+}
+
+.ReactModal__Overlay--before-close{
+    opacity: 0;
+}
+
 .btn1 {
   border: none;
   background-color: transparent;
@@ -232,5 +246,91 @@
   background-color: white;
 
   padding: 10px;
-  z-index: 10000000;
+  z-index: 1;
+}
+
+.welcome-text {
+  font-size: 28px;
+  font-family: 'Cabin', sans-serif;
+  margin: 12px;
+}
+
+.welcome-inst {
+  font-size: 16px;
+  font-family: 'Cabin', sans-serif;
+  margin-top: 6px;
+  margin-left: 20px;
+}
+
+.animated-input-field {
+  position: relative;
+  width: 330px;
+  height: 60px;
+  line-height: 60px;
+  margin-left: 20px;
+}
+.animated-label {
+  position: absolute;
+  top: 0;
+  left: 12px;
+  width: 100%;
+  color: #A5A5A5;
+  transition: 0.2s all;
+  cursor: text;
+  font-family: 'IBM Plex Sans', sans-serif;
+  letter-spacing: 0.5px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.animated-input {
+  height: 70%;
+  width: 90%;
+  border: 0;
+  outline: 0;
+  padding-left: 4px;
+  border-radius: 5px;
+  box-shadow: none;
+  color: #111;
+  background-color: #EDEDED;
+  transition: all .2s ease-in-out;
+}
+
+.animated-input:hover,
+.animated-input:focus {
+  border: solid 2px #000000;
+  border-radius: 5px;
+  background-color: white;
+}
+
+.animated-input:hover~label,
+.animated-input:focus~label,
+.animated-input:valid~label {
+  font-size: 10px;
+  top: -14px;
+  left: 5px;
+}
+
+.input-button {
+  margin-top: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 5px;
+  background-color: #ADD7CD;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.input-button:hover {
+  background-color: #8BADA5;
+  cursor: pointer;
+}
+
+.input-img {
+  width: 60%;
 }
