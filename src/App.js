@@ -27,7 +27,8 @@ class App extends React.Component {
       {value: '1', label: 'All'},
       {value: '2', label: 'All Cleaned'},
       {value: '3', label: 'Annotated'},
-      {value: '4', label: 'Annotated Cleaned'}
+      {value: '4', label: 'Annotated Cleaned'},
+      {value: '5', label: 'Screened'}
     ]
     this.state = {
       stops: [],
@@ -35,11 +36,13 @@ class App extends React.Component {
       stops2: [],
       stops3: [],
       stops4: [],
+      stops5: [],
       loaded: 0,
       loaded1: 0,
       loaded2: 0,
       loaded3: 0,
       loaded4: 0,
+      loaded5: 0,
       code: '',
       authorized: false,
     }
@@ -66,6 +69,12 @@ class App extends React.Component {
     })
     axios.get(this.url + `/stops/all/clean_annotated`).then(res => {
       this.setState({stops4: res.data.data, loaded4: 1})
+    })
+    .catch(e => {
+      console.log(e)
+    })
+    axios.get(this.url + `/stops/all/screened`).then(res => {
+      this.setState({stops5: res.data.data, loaded5: 1})
     })
     .catch(e => {
       console.log(e)
@@ -111,6 +120,10 @@ class App extends React.Component {
     if (e.value == 4) {
       changeStop = this.state.stops4
       changeLoaded = this.state.loaded4
+    }
+    if (e.value == 5) {
+      changeStop = this.state.stops5
+      changeLoaded = this.state.loaded5
     }
     this.setState({
       stops: changeStop,
