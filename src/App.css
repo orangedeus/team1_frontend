@@ -20,6 +20,10 @@
   }
 }
 
+.select-single {
+  width: 20%;
+}
+
 .MapContainer {
   height: 85%;
   width: 90%;

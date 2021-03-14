@@ -9,6 +9,7 @@ import './App.css';
 import Fade from 'react-reveal/Fade';
 import Modal from 'react-modal';
 import axios from 'axios';
+import Select from 'react-select';
 import { 
   BrowserRouter as Router, 
   Route, 
@@ -22,11 +23,19 @@ class App extends React.Component {
   constructor(props) {
     super(props)
     this.url = "http://13.251.37.189:3001"
+    this.options = [
+      {value: '1', label: 'All'},
+      {value: '2', label: 'All Cleaned'},
+      {value: '3', label: 'Annotated'},
+      {value: '4', label: 'Annotated Cleaned'}
+    ]
     this.state = {
+      stops: [],
       stops1: [],
       stops2: [],
       stops3: [],
       stops4: [],
+      loaded: 0,
       loaded1: 0,
       loaded2: 0,
       loaded3: 0,
@@ -38,7 +47,7 @@ class App extends React.Component {
   
   componentDidMount() {
     axios.get(this.url + `/stops/all`).then(res => {
-      this.setState({stops1: res.data.data, loaded1: 1})
+      this.setState({stops: res.data.data, loaded: 1, stops1: res.data.data, loaded1: 1})
     })
     .catch(e => {
       console.log(e)
@@ -61,7 +70,6 @@ class App extends React.Component {
     .catch(e => {
       console.log(e)
     })
-
   }
   handleUpdate = (stops) => {
     this.setState({stops: stops})
@@ -81,6 +89,32 @@ class App extends React.Component {
           code: loginCode
         })
       }
+    })
+  }
+
+  handleChange = (e) => {
+    console.log(e.value)
+    let changeStop = ''
+    let changeLoaded = ''
+    if (e.value == 1) {
+      changeStop = this.state.stops1
+      changeLoaded = this.state.loaded1
+    }
+    if (e.value == 2) {
+      changeStop = this.state.stops2
+      changeLoaded = this.state.loaded2
+    }
+    if (e.value == 3) {
+      changeStop = this.state.stops3
+      changeLoaded = this.state.loaded3
+    }
+    if (e.value == 4) {
+      changeStop = this.state.stops4
+      changeLoaded = this.state.loaded4
+    }
+    this.setState({
+      stops: changeStop,
+      loaded: changeLoaded
     })
   }
 
@@ -156,11 +190,9 @@ class App extends React.Component {
                 <Annotation stops={this.state.stops3} userCode={this.state.code} onUpdate={this.handleUpdate}/>
               </Route>
               <Route path='/' render>
-                <div className='hundred header-padding'>
-                  <MapIndex stops={this.state.stops1} load={this.state.loaded1}/>
-                  <MapIndex stops={this.state.stops2} load={this.state.loaded2}/>
-                  <MapIndex stops={this.state.stops3} load={this.state.loaded3}/>
-                  <MapIndex stops={this.state.stops4} load={this.state.loaded4}/>
+                <div className='hundred header-padding' style={{flexDirection: 'column'}}>
+                  <Select options={this.options} className="select-single" onChange={this.handleChange} />
+                  <MapIndex stops={this.state.stops} load={this.state.loaded}/>
                 </div>
               </Route>   
             </Switch>
