@@ -8,7 +8,7 @@ var start, end;
 class Annotation extends React.Component {
     constructor(props) {
         super(props)
-        this.url = "http://ec2-54-254-178-22.ap-southeast-1.compute.amazonaws.com:3001"
+        this.url = "http://13.251.37.189:3001"
         this.start = ''
         this.end = ''
         this.state = {
