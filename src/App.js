@@ -4,7 +4,7 @@ import MapIndex from './MapIndex';
 import Header from './Header';
 import Annotation from './Annotation';
 import submit from './submit.png';
-import Upload from './Upload';
+import Admin from './Admin';
 import './App.css';
 import Fade from 'react-reveal/Fade';
 import Modal from 'react-modal';
@@ -43,12 +43,28 @@ class App extends React.Component {
       loaded3: 0,
       loaded4: 0,
       loaded5: 0,
-      code: '',
-      authorized: false,
+      auth: {
+        user: 0,
+        admin: 0,
+        code: ''
+      },
+      loggingIn: 0
     }
   }
   
   componentDidMount() {
+    let prevLogin = localStorage.getItem('code')
+    if (prevLogin != '') {
+      let prevAdmin = localStorage.getItem('admin')
+      console.log('Admin? ' + prevAdmin)
+      this.setState({
+        auth: {
+          user: parseInt(localStorage.getItem('valid')),
+          admin: parseInt(prevAdmin),
+          code: prevLogin
+        }
+      })
+    }
     axios.get(this.url + `/stops/all`).then(res => {
       this.setState({stops: res.data.data, loaded: 1, stops1: res.data.data, loaded1: 1})
     })
@@ -92,17 +108,34 @@ class App extends React.Component {
         code: loginCode
       }
     ).then(res => {
-      if (res.data.valid) {
-        this.setState({
-          authorized: true,
-          code: loginCode
-        })
+      this.setState({
+        loggingIn: !res.data.user,
+        auth: res.data
+      })
+      localStorage.setItem('valid', res.data.user)
+      localStorage.setItem('admin', res.data.admin)
+      localStorage.setItem('code', loginCode)
+    })
+  }
+
+  handleLoginPress = () => {
+    this.setState({loggingIn: 1})
+  }
+
+  handleLogoutPress = () => {
+    localStorage.setItem('valid', 0)
+    localStorage.setItem('admin', 0)
+    localStorage.setItem('code', '')
+    this.setState({
+      auth: {
+        user: 0,
+        admin: 0,
+        code: ''
       }
     })
   }
 
   handleChange = (e) => {
-    console.log(e.value)
     let changeStop = ''
     let changeLoaded = ''
     if (e.value == 1) {
@@ -138,18 +171,14 @@ class App extends React.Component {
   }
 
   render() {
-    console.log(this.state.stops1)
-    console.log(this.state.stops2)
-    console.log(this.state.stops3)
-    console.log(this.state.stops4)
+    console.log(this.state.auth)
     return(
       <Router>
         <Modal 
-          isOpen={!this.state.authorized}
+          isOpen={this.state.loggingIn}
           closeTimeoutMS={1000}
-          ariaHideApp={true}
-          shouldCloseOnOverlayClick={false}
-          onRequestClose={() => {console.log('testing');}}
+          onRequestClose={() => {this.setState({loggingIn: 0})}}
+          shouldCloseOnOverlayClick={true}
           onAfterClose={() => {console.log('closed');}}
           style={{
             overlay: {
@@ -175,7 +204,7 @@ class App extends React.Component {
               width: '30%',
               height: '30%',
               zIndex: 1001
-            }
+            },
           }}
         >
           <div className='welcome-text'>
@@ -186,33 +215,37 @@ class App extends React.Component {
           </div>
           <div className="animated-input-field">
             <input className="animated-input" type="password" id="code" onKeyUp={this.handleKeyPress} required />
-            <label className="animated-label" for="code">CODE</label>
+            <label className="animated-label" htmlFor="code">CODE</label>
             <button type="submit" className="input-button" onClick={this.handleLogin}>
               <img src={submit} alt="Submit" className="input-img" />
             </button>
           </div>
         </Modal>
-        {this.state.authorized ?
-          <div id="App" className="App">
-            <Header />
-            <Switch>
-              <Route path='/upload' render>
-                <Upload />
+        <div id="App" className="App">
+          <Header auth={this.state.auth} logIn={this.handleLoginPress} logOut={this.handleLogoutPress} />
+          <Switch>
+            {this.state.auth.admin ?
+              <Route path='/admin' render>
+                <Admin code={this.state.auth.code} />
               </Route>
+              :
+              ''
+            }
+            {this.state.auth.user ?
               <Route path='/annotation' render>
-                <Annotation stops={this.state.stops3} userCode={this.state.code} onUpdate={this.handleUpdate}/>
+                <Annotation stops={this.state.stops3} userCode={this.state.auth.code} onUpdate={this.handleUpdate}/>
               </Route>
-              <Route path='/' render>
-                <div className='hundred header-padding' style={{flexDirection: 'column'}}>
-                  <Select options={this.options} className="select-single" onChange={this.handleChange} />
-                  <MapIndex stops={this.state.stops} load={this.state.loaded}/>
-                </div>
-              </Route>   
-            </Switch>
-          </div>
-          :
-          <div />
-        }
+              :
+              ''
+            }
+            <Route path='/' render>
+              <div className='hundred header-padding' style={{flexDirection: 'column'}}>
+                <Select options={this.options} className="select-single" onChange={this.handleChange} />
+                <MapIndex stops={this.state.stops} load={this.state.loaded}/>
+              </div>
+            </Route>   
+          </Switch>
+        </div>
       </Router>
     )
   }

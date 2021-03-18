@@ -46,25 +46,22 @@ function Upload() {
     }
 
     return(
-        <div className="hundred">
-            <div className="upload">
-                <input
-                    type="file"
-                    ref={el}
-                    multiple
-                    onChange={handleChange}
-                    className="upload-margin"
-                />
-                <div className="upload-margin">
-                    {progress ? '' : <button className="btn2" onClick={uploadFile}>
-                        Upload
-                    </button>}
-                </div>
-                <div className='progressBar upload-margin' style={progress ? {width: progress} : {display: 'none'}}>
-                    {progress}
-                </div>
-                {progress == '100%' ? <div className="upload-margin">File(s) received for processing.</div> : ''}
+        <div className="upload">
+            <input
+                type="file"
+                ref={el}
+                multiple
+                onChange={handleChange}
+            />
+            <div>
+                {progress ? '' : <button className="btn2" onClick={uploadFile}>
+                    Upload
+                </button>}
             </div>
+            <div className='progressBar' style={progress ? {width: progress} : {display: 'none'}}>
+                {progress}
+            </div>
+            {progress == '100%' ? <div>File(s) received for processing.</div> : ''}
         </div>
     )
 }

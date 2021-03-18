@@ -9,6 +9,7 @@ import {
 
 
 class Header extends React.Component {
+    
     render() {
         return(
             <div className='Header'>
@@ -16,14 +17,31 @@ class Header extends React.Component {
                 <div className="third">
                     <ul className='links'>
                         <li>
-                            <Link to='/'><button className='btn1'>Home</button></Link>
+                            <Link to='/'><div className='btn1'>Home</div></Link>
                         </li>
-                        <li>
-                            <Link to='/annotation'><button className='btn1'>Annotation</button></Link>
-                        </li>
-                        <li>
-                            <Link to='/upload'><button className='btn1'>Upload</button></Link>
-                        </li>
+                        {this.props.auth.user ?
+                            <li>
+                                <Link to='/annotation'><div className='btn1'>Annotation</div></Link>
+                            </li>
+                            :
+                            ''
+                        }
+                        {this.props.auth.admin ?
+                            <li>
+                                <Link to='/admin'><div className='btn1'>Admin</div></Link>
+                            </li>
+                            :
+                            ''
+                        }
+                        {!this.props.auth.user ?
+                            <li>
+                                <div className='btn1' onClick={this.props.logIn} >Log In</div>
+                            </li>
+                            :
+                            <li>
+                                <div className='btn1' onClick={this.props.logOut} >Log Out</div>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
