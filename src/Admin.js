@@ -31,10 +31,6 @@ class Admin extends React.Component {
         })
     }
 
-    handleClipboard = (e) => {
-        navigator.clipboard.writeText(e.target.innerText)
-    }
-
     copyTable = () => {
         const elTable = document.querySelector('#table');
         
@@ -71,7 +67,7 @@ class Admin extends React.Component {
                 tr = []
             }
             tr.push(
-                <div key={"code-" + i} className="wrap-text td code" onClick={this.handleClipboard}><span className='custom-underline'>{this.state.generatedCodes[i]}</span></div>
+                <div key={"code-" + i} className="wrap-text td code"><span className='custom-underline'>{this.state.generatedCodes[i]}</span></div>
             )
         }
         codeHtml.push(<div className='tr'>{tr}</div>)
