@@ -11,12 +11,13 @@ class Admin extends React.Component {
         super(props)
         this.url = "http://13.251.37.189:3001"
         this.state = {
-            generatedCodes: []
+            generatedCodes: [],
+            added: {check: 0, route: ''}
         }
     }
 
     handleGenerate = () => {
-        let genBox = document.getElementById('generate');
+        let genBox = document.getElementById('generate')
         let number = genBox.value;
         let req = {
             code: this.props.code,
@@ -31,31 +32,47 @@ class Admin extends React.Component {
         })
     }
 
+    handleAddRoute = () => {
+        let routeBox = document.getElementById('route');
+        let route = routeBox.value
+        let req = {
+            route: route
+        }
+        Axios.post(this.url + '/routes/insert', req)
+        .then(res => {
+            this.setState({
+                added: {
+                    check: 1,
+                    route: route
+                }
+            })
+        })
+        .catch(e => {console.log(e)})
+    }
+
     copyTable = () => {
         const elTable = document.querySelector('#table');
         
-        let range, sel;
+        let range = ''
+        let selection = ''
         
-        // Ensure that range and selection are supported by the browsers
         if (document.createRange && window.getSelection) {
         
           range = document.createRange();
-          sel = window.getSelection();
-          // unselect any element in the page
-          sel.removeAllRanges();
+          selection = window.getSelection();
+          selection.removeAllRanges();
         
           try {
             range.selectNodeContents(elTable);
-            sel.addRange(range);
+            selection.addRange(range);
           } catch (e) {
             range.selectNode(elTable);
-            sel.addRange(range);
+            selection.addRange(range);
           }
         
           document.execCommand('copy');
         }
-        
-        sel.removeAllRanges();
+        selection.removeAllRanges();
     }
 
     render() {
@@ -78,6 +95,7 @@ class Admin extends React.Component {
                         <TabList>
                             <Tab>Generate Codes</Tab>
                             <Tab>Upload</Tab>
+                            <Tab>Insert Routes</Tab>
                         </TabList>
                         <TabPanel>
                             <div className='generate-code'>
@@ -97,6 +115,11 @@ class Admin extends React.Component {
                         </TabPanel>
                         <TabPanel>
                             <Upload />
+                        </TabPanel>
+                        <TabPanel>
+                            <input className='route-box' type='text' id='route' />
+                            <button className='btn2' onClick={this.handleAddRoute}>Add</button>
+                            {this.state.added.check ? <div>Route '{this.state.added.route}' added!</div> : ''}
                         </TabPanel>
                     </Tabs>
                 </div>

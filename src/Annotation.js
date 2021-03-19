@@ -31,8 +31,12 @@ class Annotation extends React.Component {
     handleSubmit = () => {
         let thisStop = this.state.stops[this.state.currIndex]
         this.end = new Date()
-        let input = document.getElementById('people')
-        let newPeople = input.value
+        let total = document.getElementById('people')
+        let boarding = document.getElementById('boarding')
+        let alighting = document.getElementById('alighting')
+        let newTotal = total.value
+        let newBoarding = boarding.value
+        let newAlighting = alighting.value
         let time = 0
         if (this.start !== '') {
             time = (this.end - this.start) / 1000
@@ -46,17 +50,19 @@ class Annotation extends React.Component {
                     x: currStop.location.x,
                     y: currStop.location.y
                 },
-                people: newPeople
+                annotated: newTotal,
+                boarding: newBoarding,
+                alighting: newAlighting
             }
         ).then(res => {
-            input.value = ''
+            total.value = ''
             console.log(res)
         })
         axios.post(this.url + '/instrumentation',
             instrumentation
         )
         let newStops = this.state.stops
-        newStops[this.state.currIndex].people = newPeople
+        newStops[this.state.currIndex].annotated = newTotal
         this.setState({stops: newStops})
         this.handleUpdate()
     }
@@ -80,7 +86,18 @@ class Annotation extends React.Component {
                 {currStop && <ReactPlayer playing={this.state.playing} url={this.url + '/videos/' + currStop.url} stopOnUnmount={true} onStart={this.handleStart} width={640} height={360} controls={true}/>}
                 {currStop && 
                 <div className="submit-cont">
-                    <input className='annotate-box' placeholder={currStop.people} type='number' id='people'/>
+                    <div>
+                        <span>Total: </span>
+                        <input className='annotate-box' placeholder={currStop.people} type='number' id='people'/>
+                    </div>
+                    <div>
+                        <span>Boarding: </span>
+                        <input className='annotate-box'  type='number' id='boarding'/>
+                    </div>
+                    <div>
+                        <span>Alighting: </span>
+                        <input className='annotate-box'  type='number' id='alighting'/>
+                    </div>
                     <button className='btn2' onClick={this.handleSubmit}>Annotate</button>
                 </div>}
                 <div className='navBar'>

@@ -17,38 +17,32 @@ import {
   Switch 
 } from 'react-router-dom'; 
 
+
+
 Modal.setAppElement(document.getElementById('root'));
 
 class App extends React.Component {
   constructor(props) {
     super(props)
     this.url = "http://13.251.37.189:3001"
-    this.options = [
-      {value: '1', label: 'All'},
-      {value: '2', label: 'All Cleaned'},
-      {value: '3', label: 'Annotated'},
-      {value: '4', label: 'Annotated Cleaned'},
-      {value: '5', label: 'Screened'}
-    ]
     this.state = {
       stops: [],
-      stops1: [],
-      stops2: [],
-      stops3: [],
-      stops4: [],
-      stops5: [],
-      loaded: 0,
-      loaded1: 0,
-      loaded2: 0,
-      loaded3: 0,
-      loaded4: 0,
-      loaded5: 0,
+      mapStops: [],
+      mapLoaded: 0,
       auth: {
         user: 0,
         admin: 0,
         code: ''
       },
-      loggingIn: 0
+      loggingIn: 0,
+      selectRoutes: [{value: 0, label: 'All'}],
+      filter: {
+        cleaned: false,
+        people: true,
+        annotated: false,
+        boarding: false,
+        alighting: false
+      }
     }
   }
   
@@ -56,7 +50,6 @@ class App extends React.Component {
     let prevLogin = localStorage.getItem('code')
     if (prevLogin != '') {
       let prevAdmin = localStorage.getItem('admin')
-      console.log('Admin? ' + prevAdmin)
       this.setState({
         auth: {
           user: parseInt(localStorage.getItem('valid')),
@@ -65,39 +58,20 @@ class App extends React.Component {
         }
       })
     }
-    axios.get(this.url + `/stops/all`).then(res => {
-      this.setState({stops: res.data.data, loaded: 1, stops1: res.data.data, loaded1: 1})
-    })
-    .catch(e => {
-      console.log(e)
-    })
-    axios.get(this.url + `/stops/all/cleaned`).then(res => {
-      this.setState({stops2: res.data.data, loaded2: 1})
-    })
-    .catch(e => {
-      console.log(e)
-    })
-    axios.get(this.url + `/stops/all/annotated`).then(res => {
-      this.setState({stops3: res.data.data, loaded3: 1})
-    })
-    .catch(e => {
-      console.log(e)
-    })
-    axios.get(this.url + `/stops/all/clean_annotated`).then(res => {
-      this.setState({stops4: res.data.data, loaded4: 1})
-    })
-    .catch(e => {
-      console.log(e)
-    })
-    axios.get(this.url + `/stops/all/screened`).then(res => {
-      this.setState({stops5: res.data.data, loaded5: 1})
-    })
-    .catch(e => {
-      console.log(e)
+    axios.get(this.url + '/stops/').then(res => {
+      this.setState({
+        stops: res.data,
+      })
     })
   }
   handleUpdate = (stops) => {
     this.setState({stops: stops})
+  }
+
+  handleSelect = () => {
+    axios.get(this.url + '/routes').then((res) => {
+      this.setState({selectRoutes: [{value: 0, label: 'All'}].concat(res.data)})
+    })
   }
 
   handleLogin = () => {
@@ -136,31 +110,15 @@ class App extends React.Component {
   }
 
   handleChange = (e) => {
-    let changeStop = ''
-    let changeLoaded = ''
-    if (e.value == 1) {
-      changeStop = this.state.stops1
-      changeLoaded = this.state.loaded1
+    let route = e.label
+    if (e.label == 'All') {
+      route = ''
     }
-    if (e.value == 2) {
-      changeStop = this.state.stops2
-      changeLoaded = this.state.loaded2
-    }
-    if (e.value == 3) {
-      changeStop = this.state.stops3
-      changeLoaded = this.state.loaded3
-    }
-    if (e.value == 4) {
-      changeStop = this.state.stops4
-      changeLoaded = this.state.loaded4
-    }
-    if (e.value == 5) {
-      changeStop = this.state.stops5
-      changeLoaded = this.state.loaded5
-    }
-    this.setState({
-      stops: changeStop,
-      loaded: changeLoaded
+    axios.get(this.url + '/stops/' + route).then(res => {
+      this.setState({
+        mapStops: res.data,
+        mapLoaded: 1
+      })
     })
   }
 
@@ -170,8 +128,16 @@ class App extends React.Component {
     }
   }
 
+  handleFilter = (e) => {
+    let checkedBox = e.currentTarget
+    let lastFilter = this.state.filter
+    lastFilter[checkedBox.value] = checkedBox.checked
+    this.setState({
+      filter: lastFilter
+    })
+  }
+
   render() {
-    console.log(this.state.auth)
     return(
       <Router>
         <Modal 
@@ -233,15 +199,27 @@ class App extends React.Component {
             }
             {this.state.auth.user ?
               <Route path='/annotation' render>
-                <Annotation stops={this.state.stops3} userCode={this.state.auth.code} onUpdate={this.handleUpdate}/>
+                <Annotation stops={this.state.stops} userCode={this.state.auth.code} onUpdate={this.handleUpdate}/>
               </Route>
               :
               ''
             }
             <Route path='/' render>
               <div className='hundred header-padding' style={{flexDirection: 'column'}}>
-                <Select options={this.options} className="select-single" onChange={this.handleChange} />
-                <MapIndex stops={this.state.stops} load={this.state.loaded}/>
+                <Select options={this.state.selectRoutes} className="select-single" onMenuOpen={this.handleSelect} onChange={this.handleChange} />
+                <div className="filters">
+                  <input type="checkbox" id="people" name="people" value="people" onChange={this.handleFilter} checked={this.state.filter.people}/>
+                  <label htmlFor="people">CV</label>
+                  <input type="checkbox" id="annotated" name="annotated" value="annotated" onChange={this.handleFilter} checked={this.state.filter.annotated}/>
+                  <label htmlFor="annotated">Annotated</label>
+                  <input type="checkbox" id="boarding" name="boarding" value="boarding" onChange={this.handleFilter} checked={this.state.filter.boarding}/>
+                  <label htmlFor="boarding">Boarding</label>
+                  <input type="checkbox" id="alighting" name="alighting" value="alighting" onChange={this.handleFilter} checked={this.state.filter.alighting}/>
+                  <label htmlFor="alighting">Alighting</label>
+                  <input type="checkbox" id="cleaned" name="cleaned" value="cleaned" onChange={this.handleFilter} checked={this.state.filter.cleaned}/>
+                  <label htmlFor="cleaned">Clean</label>
+                </div>
+                <MapIndex stops={this.state.mapStops} load={this.state.mapLoaded} filter={this.state.filter} />
               </div>
             </Route>   
           </Switch>

@@ -2,13 +2,17 @@ import React, { useRef, useState } from 'react';
 import App from './App';
 import './App.css';
 import axios from 'axios';
+import Select from 'react-select';
 import { isCompositeComponent } from 'react-dom/test-utils';
 
 
 function Upload() {
+    const url = "http://13.251.37.189:3001"
     const [files, setFiles] = useState('')
     const [progress, setProgress] = useState(0)
+    const [routes, setRoutes] = useState([])
     const el = useRef()
+    const selEl = useRef()
 
     const handleChange = (e) => {
         setProgress(0)
@@ -18,14 +22,16 @@ function Upload() {
     }
 
     const uploadFile = () => {
+        const route = selEl.current.state.value.label
         const formData = new FormData()
-        const url = "http://13.251.37.189:3001/process"
+        const upload_url = url + "/process"
         console.log(files)
         for (const key of Object.keys(files)) {
             formData.append('upload', files[key])
         }
         console.log(formData)
-        axios.post(url, formData, {
+        formData.append('route', route)
+        axios.post(upload_url, formData, {
             onUploadProgress(ProgressEvent) {
                 let progress = Math.round(ProgressEvent.loaded / ProgressEvent.total * 100) + '%'
                 setProgress(progress)
@@ -45,8 +51,15 @@ function Upload() {
         }
     }
 
+    const handleSelect = () => {
+        axios.get(url + '/routes').then((res) => {
+            setRoutes(res.data)
+        })
+    }
+
     return(
         <div className="upload">
+            <Select ref={selEl} options={routes} className="select-single2" onMenuOpen={handleSelect} />
             <input
                 type="file"
                 ref={el}
