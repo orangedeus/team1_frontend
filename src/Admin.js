@@ -9,7 +9,7 @@ class Admin extends React.Component {
 
     constructor(props) {
         super(props)
-        this.url = "http://13.251.37.189:3001"
+        this.url = "http://18.136.217.164:3001"
         this.state = {
             generatedCodes: [],
             added: {check: 0, route: ''}
@@ -46,6 +46,14 @@ class Admin extends React.Component {
                     route: route
                 }
             })
+        })
+        .catch(e => {console.log(e)})
+    }
+
+    handleNuke = () => {
+        Axios.get(this.url + '/nuke')
+        .then(res => {
+            window.location.reload()
         })
         .catch(e => {console.log(e)})
     }
@@ -96,6 +104,7 @@ class Admin extends React.Component {
                             <Tab>Generate Codes</Tab>
                             <Tab>Upload</Tab>
                             <Tab>Insert Routes</Tab>
+                            <Tab>Nuke</Tab>
                         </TabList>
                         <TabPanel>
                             <div className='generate-code'>
@@ -120,6 +129,9 @@ class Admin extends React.Component {
                             <input className='route-box' type='text' id='route' />
                             <button className='btn2' onClick={this.handleAddRoute}>Add</button>
                             {this.state.added.check ? <div>Route '{this.state.added.route}' added!</div> : ''}
+                        </TabPanel>
+                        <TabPanel>
+                            <button className='btn2' onClick={this.handleNuke}>Nuke</button>
                         </TabPanel>
                     </Tabs>
                 </div>

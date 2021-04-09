@@ -24,7 +24,7 @@ Modal.setAppElement(document.getElementById('root'));
 class App extends React.Component {
   constructor(props) {
     super(props)
-    this.url = "http://13.251.37.189:3001"
+    this.url = "http://18.136.217.164:3001"
     this.state = {
       stops: [],
       mapStops: [],
@@ -35,9 +35,8 @@ class App extends React.Component {
         code: ''
       },
       loggingIn: 0,
-      selectRoutes: [{value: 0, label: 'All'}],
+      selectRoutes: [],
       filter: {
-        cleaned: false,
         people: true,
         annotated: false,
         boarding: false,
@@ -209,15 +208,13 @@ class App extends React.Component {
                 <Select options={this.state.selectRoutes} className="select-single" onMenuOpen={this.handleSelect} onChange={this.handleChange} />
                 <div className="filters">
                   <input type="checkbox" id="people" name="people" value="people" onChange={this.handleFilter} checked={this.state.filter.people}/>
-                  <label htmlFor="people">CV</label>
+                  <label htmlFor="people"><span class="dot" style={{backgroundColor: '#1A05F3'}}/>Automatic</label>
                   <input type="checkbox" id="annotated" name="annotated" value="annotated" onChange={this.handleFilter} checked={this.state.filter.annotated}/>
-                  <label htmlFor="annotated">Annotated</label>
+                  <label htmlFor="annotated"><span class="dot" style={{backgroundColor: '#4DC274'}}/>Annotated</label>
                   <input type="checkbox" id="boarding" name="boarding" value="boarding" onChange={this.handleFilter} checked={this.state.filter.boarding}/>
-                  <label htmlFor="boarding">Boarding</label>
+                  <label htmlFor="boarding"><span class="dot" style={{backgroundColor: '#F7F603'}}/>Boarding</label>
                   <input type="checkbox" id="alighting" name="alighting" value="alighting" onChange={this.handleFilter} checked={this.state.filter.alighting}/>
-                  <label htmlFor="alighting">Alighting</label>
-                  <input type="checkbox" id="cleaned" name="cleaned" value="cleaned" onChange={this.handleFilter} checked={this.state.filter.cleaned}/>
-                  <label htmlFor="cleaned">Clean</label>
+                  <label htmlFor="alighting"><span class="dot" style={{backgroundColor: '#E20000'}}/>Alighting</label>
                 </div>
                 <MapIndex stops={this.state.mapStops} load={this.state.mapLoaded} filter={this.state.filter} />
               </div>

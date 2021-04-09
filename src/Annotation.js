@@ -8,7 +8,7 @@ var start, end;
 class Annotation extends React.Component {
     constructor(props) {
         super(props)
-        this.url = "http://13.251.37.189:3001"
+        this.url = "http://18.136.217.164:3001"
         this.start = ''
         this.end = ''
         this.state = {
@@ -87,15 +87,15 @@ class Annotation extends React.Component {
                 {currStop && 
                 <div className="submit-cont">
                     <div>
-                        <span>Total: </span>
+                        <span>Lahat: </span>
                         <input className='annotate-box' placeholder={currStop.people} type='number' id='people'/>
                     </div>
                     <div>
-                        <span>Boarding: </span>
+                        <span>Sumakay: </span>
                         <input className='annotate-box'  type='number' id='boarding'/>
                     </div>
                     <div>
-                        <span>Alighting: </span>
+                        <span>Bumaba: </span>
                         <input className='annotate-box'  type='number' id='alighting'/>
                     </div>
                     <button className='btn2' onClick={this.handleSubmit}>Annotate</button>

@@ -7,7 +7,8 @@ import { isCompositeComponent } from 'react-dom/test-utils';
 
 
 function Upload() {
-    const url = "http://13.251.37.189:3001"
+    const instance_url = "http://18.136.217.164:3001"
+    const upload_url = "http://13.251.37.189:3001"
     const [files, setFiles] = useState('')
     const [progress, setProgress] = useState(0)
     const [routes, setRoutes] = useState([])
@@ -22,24 +23,34 @@ function Upload() {
     }
 
     const uploadFile = () => {
-        const route = selEl.current.state.value.label
-        const formData = new FormData()
-        const upload_url = url + "/process"
-        console.log(files)
-        for (const key of Object.keys(files)) {
-            formData.append('upload', files[key])
-        }
-        console.log(formData)
-        formData.append('route', route)
-        axios.post(upload_url, formData, {
-            onUploadProgress(ProgressEvent) {
-                let progress = Math.round(ProgressEvent.loaded / ProgressEvent.total * 100) + '%'
-                setProgress(progress)
-            }
-        }).then(res => {
+        axios.get(instance_url + '/instance/start')
+        .then(res => {
             console.log(res)
-        }).catch(err => {
-            console.log(err)
+            console.log('Instance started! Uploading... ')
+            setTimeout(() => {
+                const route = selEl.current.state.value.label
+                const formData = new FormData()
+                const request_upload_url = upload_url + "/process"
+                console.log(files)
+                for (const key of Object.keys(files)) {
+                    formData.append('upload', files[key])
+                }
+                console.log(formData)
+                formData.append('route', route)
+                axios.post(request_upload_url, formData, {
+                    onUploadProgress(ProgressEvent) {
+                        let progress = Math.round(ProgressEvent.loaded / ProgressEvent.total * 100) + '%'
+                        setProgress(progress)
+                    }
+                }).then(res => {
+                    console.log(res)
+                }).catch(err => {
+                    console.log(err)
+                })
+            }, 15000);
+        })
+        .catch(e => {
+            console.log(e)
         })
     }
 
@@ -52,7 +63,7 @@ function Upload() {
     }
 
     const handleSelect = () => {
-        axios.get(url + '/routes').then((res) => {
+        axios.get(instance_url + '/routes').then((res) => {
             setRoutes(res.data)
         })
     }

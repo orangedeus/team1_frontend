@@ -28,6 +28,14 @@
   margin-bottom: 7px;
 }
 
+.dot {
+  height: 13px;
+  width: 13px;
+  margin: 0px 2px 0px 2px;
+  border-radius: 50%;
+  display:inline-block;
+}
+
 .MapContainer {
   height: 85%;
   width: 90%;

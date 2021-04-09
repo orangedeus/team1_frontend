@@ -79,13 +79,12 @@ class MapIndex extends React.Component {
             }
             if (this.props.filter[key]) {
                 let stops = JSON.parse(JSON.stringify(this.props.stops))
-                if (this.props.filter.cleaned) {
-                    stops = clean(stops, key)
-                    console.log("cleaning " + key)
-                }
-                console.log(stops)
+                stops = clean(stops, key)
                 let color
                 switch (key) {
+                    case 'annotated':
+                        color = '#4DC274'
+                        break
                     case 'boarding':
                         color = '#F7F603'
                         break
