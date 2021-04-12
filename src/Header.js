@@ -11,6 +11,7 @@ import {
 class Header extends React.Component {
     
     render() {
+        console.log(this.props.auth)
         return(
             <div className='Header'>
                 <a href='/'><img src={logo} alt="WayStop" style={{paddingLeft: '4rem', width: '30%'}}/></a>

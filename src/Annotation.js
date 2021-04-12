@@ -2,6 +2,8 @@ import React from 'react';
 import ReactPlayer from 'react-player';
 import './App.css';
 import axios from 'axios';
+import Modal from 'react-modal';
+import Select from 'react-select';
 
 var start, end;
 
@@ -11,10 +13,15 @@ class Annotation extends React.Component {
         this.url = "http://18.136.217.164:3001"
         this.start = ''
         this.end = ''
+        this.selEl1 = React.createRef();
+        this.selEl2 = React.createRef();
+        this.selEl3 = React.createRef();
         this.state = {
             stops: [],
             currIndex: 0,
-            playing: false
+            playing: false,
+            surveyed: this.props.auth.surveyed,
+            code: this.props.auth
         }
     }
     componentDidMount() {
@@ -34,25 +41,26 @@ class Annotation extends React.Component {
         let total = document.getElementById('people')
         let boarding = document.getElementById('boarding')
         let alighting = document.getElementById('alighting')
+        let cov = document.getElementById('cov')
         let newTotal = total.value
         let newBoarding = boarding.value
         let newAlighting = alighting.value
+        let following = this.selEl3.current.state.value.value
         let time = 0
         if (this.start !== '') {
             time = (this.end - this.start) / 1000
         }
-        let instrumentation = {time: time, code: this.props.userCode, file: thisStop.url}
+        let instrumentation = {time: time, code: this.state.code, file: thisStop.url}
         console.log(instrumentation)
         let currStop = this.state.stops[this.state.currIndex]
-        axios.post(this.url + '/stops/update',
+        console.log(following)
+        axios.post(this.url + '/stops/annotate',
             {
-                location: {
-                    x: currStop.location.x,
-                    y: currStop.location.y
-                },
                 annotated: newTotal,
                 boarding: newBoarding,
-                alighting: newAlighting
+                alighting: newAlighting,
+                following: following,
+                url: currStop.url
             }
         ).then(res => {
             total.value = ''
@@ -79,24 +87,93 @@ class Annotation extends React.Component {
         this.end = ''
         this.setState({currIndex: this.state.currIndex - 1});
     }
+    submitForm = () => {
+        let age = document.getElementById('Age').value
+        let sex = document.getElementById('Sex').innerText
+        let educ = document.getElementById('Educ').innerText
+        if (age == '' || sex == 'Sex' || educ == 'Education') {
+            console.log(this.props.auth.code)
+        } else {
+            let req = {code: this.props.auth.code, age: age, sex: sex, educ: educ}
+            axios.post(this.url + '/survey/submit', req).then(res => {
+                console.log(res)
+                window.location.reload()
+            }).catch(e => {
+                console.log(e)
+            })
+        }
+        
+    }
+
     render() {
         let currStop = this.state.stops[this.state.currIndex]
         return(
+            
             <div key={"annotate" + this.state.currIndex} className="annotate header-padding">
+                <Modal 
+                isOpen={!this.state.surveyed}
+                closeTimeoutMS={1000}
+                onRequestClose={() => {this.setState({surveyed: 0})}}
+                shouldCloseOnOverlayClick={false}
+                style={{
+                    overlay: {
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                    zIndex: 1000
+                    },
+                    content: {
+                    top: '25%',
+                    left: '35%',
+                    position: 'absolute',
+                    border: '1px solid #ccc',
+                    background: '#fff',
+                    overflow: 'auto',
+                    WebkitOverflowScrolling: 'touch',
+                    borderRadius: '4px',
+                    outline: 'none',
+                    padding: '20px',
+                    width: '30%',
+                    height: '50%',
+                    zIndex: 1001
+                    },
+                }}
+                >
+                    <div className='welcome-text'>
+                        Hi!
+                    </div>
+                    <div className='welcome-inst'>
+                        Please fill up the survey form below.
+                    </div>
+                    <div className='survey-form'>
+                        <input type='number' min='0' placeholder='Age' className='form-input-box' id='Age' required/><br />
+                        <Select id='Sex' ref={this.selEl1} options={[{value: 'Male', label: 'M'}, {value: 'Female', label: 'F'}]} placeholder='Sex' isSearchable={false} className="select-single2" id='Sex' required/>
+                        <Select id='Educ' ref={this.selEl2} options={[{value: 'Elementary', label: 'Elementary'}, {value: 'High School', label: 'High School'}, {value: 'Undergraduate', label: 'Undergraduate'}, {value: 'Graduate', label: 'Graduate'}]} placeholder='Education' isSearchable={false} className="select-single2" id='Educ' required/>
+                        <button className="btn2" onClick={this.submitForm}>
+                            Submit
+                        </button>
+                    </div>
+                </Modal>
                 {currStop && <ReactPlayer playing={this.state.playing} url={this.url + '/videos/' + currStop.url} stopOnUnmount={true} onStart={this.handleStart} width={640} height={360} controls={true}/>}
                 {currStop && 
                 <div className="submit-cont">
-                    <div>
+                    <div className='annotation-div'>
                         <span>Lahat: </span>
                         <input className='annotate-box' placeholder={currStop.people} type='number' id='people'/>
                     </div>
-                    <div>
+                    <div className='annotation-div'>
                         <span>Sumakay: </span>
                         <input className='annotate-box'  type='number' id='boarding'/>
                     </div>
-                    <div>
+                    <div className='annotation-div'>
                         <span>Bumaba: </span>
                         <input className='annotate-box'  type='number' id='alighting'/>
+                    </div>
+                    <div className='annotation-div'>
+                        <Select id='cov' placeholder='Sumusunod?' ref={this.selEl3} options={[{value: false, label: 'Hindi'}, {value: true, label: 'Oo'}]} isSearchable={false} className="select-single3" required/>
                     </div>
                     <button className='btn2' onClick={this.handleSubmit}>Annotate</button>
                 </div>}

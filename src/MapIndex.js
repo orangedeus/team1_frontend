@@ -69,7 +69,6 @@ class MapIndex extends React.Component {
         this.defCenter = [0, 0]
     }
     render() {
-        console.log(this.props.filter)
         let markerRender = []
         let position = []
         
@@ -102,7 +101,6 @@ class MapIndex extends React.Component {
                         <Circle key={key + i} center={coord} color={color} radius={Math.ceil(display) * 15} />
                     )
                 }
-                console.log(markerRender)
             }
         }
 

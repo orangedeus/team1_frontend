@@ -32,7 +32,8 @@ class App extends React.Component {
       auth: {
         user: 0,
         admin: 0,
-        code: ''
+        code: '',
+        surveyed: ''
       },
       loggingIn: 0,
       selectRoutes: [],
@@ -45,22 +46,34 @@ class App extends React.Component {
     }
   }
   
+
+
   componentDidMount() {
     let prevLogin = localStorage.getItem('code')
     if (prevLogin != '') {
       let prevAdmin = localStorage.getItem('admin')
-      this.setState({
-        auth: {
-          user: parseInt(localStorage.getItem('valid')),
-          admin: parseInt(prevAdmin),
+      axios.post(this.url + '/login',
+        {
           code: prevLogin
         }
+      ).then(res => {
+        this.setState({
+          auth: res.data
+        })
+        localStorage.setItem('valid', res.data.user)
+        localStorage.setItem('admin', res.data.admin)
+        localStorage.setItem('code', prevLogin)
+      }).catch(e => {
+        console.log(e)
       })
     }
     axios.get(this.url + '/stops/').then(res => {
       this.setState({
         stops: res.data,
       })
+      console.log(res.data)
+    }).catch(e => {
+      console.log(e)
     })
   }
   handleUpdate = (stops) => {
@@ -144,7 +157,6 @@ class App extends React.Component {
           closeTimeoutMS={1000}
           onRequestClose={() => {this.setState({loggingIn: 0})}}
           shouldCloseOnOverlayClick={true}
-          onAfterClose={() => {console.log('closed');}}
           style={{
             overlay: {
               position: 'fixed',
@@ -198,7 +210,7 @@ class App extends React.Component {
             }
             {this.state.auth.user ?
               <Route path='/annotation' render>
-                <Annotation stops={this.state.stops} userCode={this.state.auth.code} onUpdate={this.handleUpdate}/>
+                <Annotation stops={this.state.stops} auth={this.state.auth} onUpdate={this.handleUpdate}/>
               </Route>
               :
               ''
