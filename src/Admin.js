@@ -10,9 +10,11 @@ class Admin extends React.Component {
     constructor(props) {
         super(props)
         this.url = "http://18.136.217.164:3001"
+        this.updateInterval = ''
         this.state = {
             generatedCodes: [],
-            added: {check: 0, route: ''}
+            added: {check: 0, route: ''},
+            tracking: []
         }
     }
 
@@ -83,7 +85,30 @@ class Admin extends React.Component {
         selection.removeAllRanges();
     }
 
+    handleTab = (index) => {
+        if (index == 2) {
+            console.log('reached upload tracking')
+            Axios.get(this.url + '/process/tracking').then(res => {
+                this.setState({
+                    tracking: res.data
+                })
+            })
+            this.updateInterval = setInterval(() => {
+                Axios.get(this.url + '/process/tracking').then(res => {
+                    this.setState({
+                        tracking: res.data
+                    })
+                    console.log('tracking update')
+                })
+            }, 3000)
+        } else {
+            clearInterval(this.updateInterval)
+        }
+        
+    }
+
     render() {
+        let trackingContent = []
         let codeHtml = []
         let tr = []
         for (let i = 0; i < this.state.generatedCodes.length; i++) {
@@ -96,13 +121,27 @@ class Admin extends React.Component {
             )
         }
         codeHtml.push(<div className='tr'>{tr}</div>)
+
+        for (let i = 0; i < this.state.tracking.length; i++) {
+            let currTrack = this.state.tracking[i]
+            trackingContent.push(
+                <tr>
+                    <td>{currTrack.id}</td>
+                    <td>{currTrack.filename}</td>
+                    <td>{currTrack.route}</td>
+                    <td>{currTrack.status}</td>
+                </tr>
+            )
+        }
+
         return (
             <div className='hundred'>
                 <div className='admin-panels'>
-                    <Tabs>
+                    <Tabs onSelect={this.handleTab} >
                         <TabList>
                             <Tab>Generate Codes</Tab>
                             <Tab>Upload</Tab>
+                            <Tab>Upload Tracking</Tab>
                             <Tab>Insert Routes</Tab>
                             <Tab>Nuke</Tab>
                         </TabList>
@@ -124,6 +163,21 @@ class Admin extends React.Component {
                         </TabPanel>
                         <TabPanel>
                             <Upload />
+                        </TabPanel>
+                        <TabPanel>
+                            <table width='100%'>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Filename</th>
+                                        <th>Route</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {trackingContent}
+                                </tbody>
+                            </table>
                         </TabPanel>
                         <TabPanel>
                             <input className='route-box' type='text' id='route' />

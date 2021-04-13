@@ -28,6 +28,10 @@
   margin-bottom: 7px;
 }
 
+td {
+  text-align: center;
+}
+
 .annotation-div {
   padding-top: 5px;
   padding-bottom: 5px;

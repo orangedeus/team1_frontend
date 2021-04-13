@@ -17,7 +17,6 @@ function Upload() {
 
     const handleChange = (e) => {
         setProgress(0)
-        console.log(e.target.files)
         const files = e.target.files
         setFiles(files)
     }
@@ -31,10 +30,21 @@ function Upload() {
                 const route = selEl.current.state.value.label
                 const formData = new FormData()
                 const request_upload_url = upload_url + "/process"
-                console.log(files)
                 for (const key of Object.keys(files)) {
                     formData.append('upload', files[key])
+                    let req = {
+                        stage: 'initial',
+                        status: 'Uploading',
+                        route: route,
+                        fileName: files[key].name
+                    }
+                    axios.post(instance_url + '/process/tracking', req).then(res => {
+                        console.log(res.data)
+                    }).catch(e => {
+                        console.log(e)
+                    })
                 }
+
                 console.log(formData)
                 formData.append('route', route)
                 axios.post(request_upload_url, formData, {
