@@ -78,9 +78,10 @@ function Upload() {
         })
     }
 
+    console.log(routes)
     return(
         <div className="upload">
-            <Select ref={selEl} options={routes} className="select-single2" onMenuOpen={handleSelect} />
+            <Select ref={selEl} options={routes.length ? routes : []} className="select-single2" isSearchable={false} onMenuOpen={handleSelect} />
             <input
                 type="file"
                 ref={el}

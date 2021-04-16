@@ -210,7 +210,20 @@ class App extends React.Component {
             }
             {this.state.auth.user ?
               <Route path='/annotation' render>
-                <Annotation stops={this.state.stops} auth={this.state.auth} onUpdate={this.handleUpdate}/>
+                <Annotation 
+                  stops={this.state.stops.sort((a, b) => {
+                    let aUrl = a.url.toUpperCase()
+                    let bUrl = b.url.toUpperCase()
+                    if (aUrl < bUrl) {
+                      return -1
+                    } else if (bUrl < aUrl) {
+                      return 1
+                    }
+                    return 0
+                  })}
+                  auth={this.state.auth}
+                  onUpdate={this.handleUpdate}
+                />
               </Route>
               :
               ''

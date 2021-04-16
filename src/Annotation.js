@@ -17,6 +17,7 @@ class Annotation extends React.Component {
         this.selEl2 = React.createRef();
         this.selEl3 = React.createRef();
         this.state = {
+            followingSelection: '',
             stops: [],
             currIndex: 0,
             playing: false,
@@ -45,7 +46,7 @@ class Annotation extends React.Component {
         let newTotal = total.value
         let newBoarding = boarding.value
         let newAlighting = alighting.value
-        let following = this.selEl3.current.state.value.value
+        let following = this.state.followingSelection
         let time = 0
         if (this.start !== '') {
             time = (this.end - this.start) / 1000
@@ -105,6 +106,12 @@ class Annotation extends React.Component {
         
     }
 
+    handleSelectChange = (e) => {
+        this.setState({
+            followingSelection: e.value
+        })
+    }
+
     render() {
         let currStop = this.state.stops[this.state.currIndex]
         return(
@@ -157,23 +164,26 @@ class Annotation extends React.Component {
                         </button>
                     </div>
                 </Modal>
+                <div>
+                    {this.state.currIndex} / {this.state.stops.length}
+                </div>
                 {currStop && <ReactPlayer playing={this.state.playing} url={this.url + '/videos/' + currStop.url} stopOnUnmount={true} onStart={this.handleStart} width={640} height={360} controls={true}/>}
                 {currStop && 
                 <div className="submit-cont">
                     <div className='annotation-div'>
                         <span>Lahat: </span>
-                        <input className='annotate-box' placeholder={currStop.people} type='number' id='people'/>
+                        <input className='annotate-box' placeholder={currStop.people} type='number' id='people' min='0' required/>
                     </div>
                     <div className='annotation-div'>
                         <span>Sumakay: </span>
-                        <input className='annotate-box'  type='number' id='boarding'/>
+                        <input className='annotate-box'  type='number' id='boarding' min='0' required/>
                     </div>
                     <div className='annotation-div'>
                         <span>Bumaba: </span>
-                        <input className='annotate-box'  type='number' id='alighting'/>
+                        <input className='annotate-box'  type='number' id='alighting' min='0' required/>
                     </div>
                     <div className='annotation-div'>
-                        <Select id='cov' placeholder='Sumusunod?' ref={this.selEl3} options={[{value: false, label: 'Hindi'}, {value: true, label: 'Oo'}]} isSearchable={false} className="select-single3" required/>
+                        <Select id='cov' placeholder='Sumusunod?' ref={this.selEl3} options={[{value: false, label: 'Hindi'}, {value: true, label: 'Oo'}]} isSearchable={false} className="select-single3" onChange={this.handleSelectChange} required/>
                     </div>
                     <button className='btn2' onClick={this.handleSubmit}>Annotate</button>
                 </div>}

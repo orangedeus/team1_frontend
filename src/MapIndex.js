@@ -73,11 +73,15 @@ class MapIndex extends React.Component {
         let position = []
         
         for (const key of Object.keys(this.props.filter)) {
+            let stops = JSON.parse(JSON.stringify(this.props.stops))
+            console.log(stops)
+            if (stops.length == 0) {
+                break
+            }
             if (key == 'cleaned') {
                 continue
             }
             if (this.props.filter[key]) {
-                let stops = JSON.parse(JSON.stringify(this.props.stops))
                 stops = clean(stops, key)
                 let color
                 switch (key) {
