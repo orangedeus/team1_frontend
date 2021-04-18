@@ -1,9 +1,12 @@
 import React, { useRef } from 'react';
-import { Map, Marker, Circle, CircleMarker, Popup, TileLayer } from 'react-leaflet';
+import { Map, Marker, Circle, ImageOverlay, CircleMarker, Popup, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
 import L from 'leaflet';
 import haversine from 'haversine';
+import ReactPlayer from 'react-player';
+import x from './x.png';
+import { xIcon } from './XIcon';
 
 
 var clean = (stops, parameter) => {
@@ -11,7 +14,7 @@ var clean = (stops, parameter) => {
     for (var i = 0; i < stops.length; i++) {
         let curr_num_x = (stops[i][parameter] * stops[i].location.x)
         let curr_num_y = (stops[i][parameter] * stops[i].location.y)
-        let curr_den = stops[i][parameter]
+        let curr_den = Number(stops[i][parameter])
         let gathered_n = 1
         for (var j = 0; j < stops.length; j++) {
             if (i == j) {
@@ -29,7 +32,7 @@ var clean = (stops, parameter) => {
             if (dist < 0.1) {
                 curr_num_x += (stops[j][parameter] * stops[j].location.x)
                 curr_num_y += (stops[j][parameter] * stops[j].location.y)
-                curr_den += stops[j][parameter]
+                curr_den += Number(stops[j][parameter])
                 gathered_n += 1
                 stops.splice(j, 1)
                 j = j - 1
@@ -66,6 +69,7 @@ class MapIndex extends React.Component {
     constructor(props) {
         super(props)
         this.mapRef = React.createRef();
+        this.url = "http://18.136.217.164:3001"
         this.defCenter = [0, 0]
     }
     render() {
@@ -74,36 +78,53 @@ class MapIndex extends React.Component {
         
         for (const key of Object.keys(this.props.filter)) {
             let stops = JSON.parse(JSON.stringify(this.props.stops))
-            console.log(stops)
             if (stops.length == 0) {
                 break
             }
-            if (key == 'cleaned') {
-                continue
-            }
             if (this.props.filter[key]) {
-                stops = clean(stops, key)
-                let color
-                switch (key) {
-                    case 'annotated':
-                        color = '#4DC274'
-                        break
-                    case 'boarding':
-                        color = '#F7F603'
-                        break
-                    case 'alighting':
-                        color = '#E20000'
-                        break
-                    default:
-                        color = '#1A05F3'
-                        break
-                }
-                for (let i = 0; i < stops.length; i++) {
-                    let coord = [stops[i].location.x, stops[i].location.y]
-                    let display = stops[i][key]
-                    markerRender.push(
-                        <Circle key={key + i} center={coord} color={color} radius={Math.ceil(display) * 15} />
-                    )
+                if (key != 'following') {
+                    stops = clean(stops, key)
+                    let color
+                    switch (key) {
+                        case 'annotated':
+                            color = '#4DC274'
+                            break
+                        case 'boarding':
+                            color = '#F7F603'
+                            break
+                        case 'alighting':
+                            color = '#E20000'
+                            break
+                        default:
+                            color = '#1A05F3'
+                            break
+                    }
+                    for (let i = 0; i < stops.length; i++) {
+                        if (stops[i][key] == null) {
+                            continue
+                        }
+                        let coord = [stops[i].location.x, stops[i].location.y]
+                        let display = stops[i][key]
+                        markerRender.push(
+                            <Circle key={key + i} center={coord} color={color} radius={Math.ceil(display) * 15} />
+                        )
+                    }
+                } else {
+                    for (let i = 0; i < stops.length; i++) {
+                        let coord = [stops[i].location.x, stops[i].location.y]
+                        let display = stops[i][key]
+                        if (stops[i][key] == true || stops[i][key] == null) {
+                            continue
+                        }
+                        markerRender.push(
+                            //<Marker key={key + i} position={coord} icon={xIcon} />
+                            <ImageOverlay url={x} bounds={[[coord[0] - .00025, coord[1] - .00025], [coord[0] + .00025, coord[1] + .00025]]} interactive={true}>
+                                <Popup className='popup'>
+                                    <ReactPlayer className='video' playing={true} url={this.url + '/videos/' + stops[i].url} stopOnUnmount={true} width={640} height={360} controls={true}/>
+                                </Popup>
+                            </ImageOverlay>
+                        )
+                    }
                 }
             }
         }

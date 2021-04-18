@@ -41,7 +41,8 @@ class App extends React.Component {
         people: true,
         annotated: false,
         boarding: false,
-        alighting: false
+        alighting: false,
+        following: false
       }
     }
   }
@@ -71,7 +72,6 @@ class App extends React.Component {
       this.setState({
         stops: res.data,
       })
-      console.log(res.data)
     }).catch(e => {
       console.log(e)
     })
@@ -150,6 +150,7 @@ class App extends React.Component {
   }
 
   render() {
+    console.log(this.state.stops)
     return(
       <Router>
         <Modal 
@@ -233,15 +234,26 @@ class App extends React.Component {
                 <Select options={this.state.selectRoutes} className="select-single" onMenuOpen={this.handleSelect} onChange={this.handleChange} />
                 <div className="filters">
                   <input type="checkbox" id="people" name="people" value="people" onChange={this.handleFilter} checked={this.state.filter.people}/>
-                  <label htmlFor="people"><span class="dot" style={{backgroundColor: '#1A05F3'}}/>Automatic</label>
+                  <label htmlFor="people"><span className="dot" style={{backgroundColor: '#1A05F3'}}/>Automatic</label>
                   <input type="checkbox" id="annotated" name="annotated" value="annotated" onChange={this.handleFilter} checked={this.state.filter.annotated}/>
-                  <label htmlFor="annotated"><span class="dot" style={{backgroundColor: '#4DC274'}}/>Annotated</label>
+                  <label htmlFor="annotated"><span className="dot" style={{backgroundColor: '#4DC274'}}/>Annotated</label>
                   <input type="checkbox" id="boarding" name="boarding" value="boarding" onChange={this.handleFilter} checked={this.state.filter.boarding}/>
-                  <label htmlFor="boarding"><span class="dot" style={{backgroundColor: '#F7F603'}}/>Boarding</label>
+                  <label htmlFor="boarding"><span className="dot" style={{backgroundColor: '#F7F603'}}/>Boarding</label>
                   <input type="checkbox" id="alighting" name="alighting" value="alighting" onChange={this.handleFilter} checked={this.state.filter.alighting}/>
-                  <label htmlFor="alighting"><span class="dot" style={{backgroundColor: '#E20000'}}/>Alighting</label>
+                  <label htmlFor="alighting"><span className="dot" style={{backgroundColor: '#E20000'}}/>Alighting</label>
+                  <input type="checkbox" id="following" name="following" value="following" onChange={this.handleFilter} checked={this.state.filter.following}/>
+                  <label htmlFor="following">&#10060; COVID Regulations</label>
                 </div>
-                <MapIndex stops={this.state.mapStops} load={this.state.mapLoaded} filter={this.state.filter} />
+                <MapIndex stops={this.state.mapStops.sort((a, b) => {
+                    let aUrl = a.url.toUpperCase()
+                    let bUrl = b.url.toUpperCase()
+                    if (aUrl < bUrl) {
+                      return -1
+                    } else if (bUrl < aUrl) {
+                      return 1
+                    }
+                    return 0
+                  })} load={this.state.mapLoaded} filter={this.state.filter} />
               </div>
             </Route>   
           </Switch>

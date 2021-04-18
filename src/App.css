@@ -20,6 +20,10 @@
   }
 }
 
+.xicon {
+  background: transparent;
+}
+
 .select-single {
   width: 20%;
 }
@@ -35,6 +39,13 @@ td {
 .annotation-div {
   padding-top: 5px;
   padding-bottom: 5px;
+}
+
+.popup {
+  width: 700px;
+  height: auto;
+  display: flexbox;
+  justify-content: center;
 }
 
 .dot {
