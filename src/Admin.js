@@ -3,6 +3,7 @@ import Upload from './Upload';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import Axios from 'axios';
+import Checkpoint from './Checkpoint';
 import copy from './copy.png';
 
 class Admin extends React.Component {
@@ -222,6 +223,7 @@ class Admin extends React.Component {
                             <Tab>Upload</Tab>
                             <Tab>Upload Tracking</Tab>
                             <Tab>Insert Routes</Tab>
+                            <Tab>Checkpoint</Tab>
                             <Tab>Nuke</Tab>
                         </TabList>
                         <TabPanel>
@@ -274,6 +276,9 @@ class Admin extends React.Component {
                             <input className='route-box' type='text' id='route' />
                             <button className='btn2' onClick={this.handleAddRoute}>Add</button>
                             {this.state.added.check ? <div>Route '{this.state.added.route}' added!</div> : ''}
+                        </TabPanel>
+                        <TabPanel>
+                            <Checkpoint />
                         </TabPanel>
                         <TabPanel>
                             <button className='btn2' onClick={this.handleNuke}>Nuke</button>
