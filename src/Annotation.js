@@ -22,7 +22,7 @@ class Annotation extends React.Component {
             currIndex: 0,
             playing: false,
             surveyed: this.props.auth.surveyed,
-            code: this.props.auth
+            code: this.props.auth.code
         }
     }
     componentDidMount() {
@@ -61,7 +61,8 @@ class Annotation extends React.Component {
                 boarding: newBoarding,
                 alighting: newAlighting,
                 following: following,
-                url: currStop.url
+                url: currStop.url,
+                code: this.props.auth.code
             }
         ).then(res => {
             total.value = ''
@@ -171,7 +172,7 @@ class Annotation extends React.Component {
                 {currStop && 
                 <div className="submit-cont">
                     <div className='annotation-div'>
-                        <span>Lahat: </span>
+                        <span>Bilang ng pasahero sa dulo ng bidyo: </span>
                         <input className='annotate-box' placeholder={currStop.people} type='number' id='people' min='0' required/>
                     </div>
                     <div className='annotation-div'>
@@ -185,7 +186,7 @@ class Annotation extends React.Component {
                     <div className='annotation-div'>
                         <Select id='cov' placeholder='Sumusunod?' ref={this.selEl3} options={[{value: false, label: 'Hindi'}, {value: true, label: 'Oo'}]} isSearchable={false} className="select-single3" onChange={this.handleSelectChange} required/>
                     </div>
-                    <button className='btn2' onClick={this.handleSubmit}>Annotate</button>
+                    <button className='btn2' onClick={this.handleSubmit}>I-annotate</button>
                 </div>}
                 <div className='navBar'>
                     {this.state.currIndex != 0 ? <button className='btn1-2' onClick={this.handlePrev}>Previous</button> : <button style={{visibility: 'hidden'}}></button>}

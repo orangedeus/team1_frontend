@@ -234,15 +234,15 @@ class App extends React.Component {
                 <Select options={this.state.selectRoutes} className="select-single" onMenuOpen={this.handleSelect} onChange={this.handleChange} />
                 <div className="filters">
                   <input type="checkbox" id="people" name="people" value="people" onChange={this.handleFilter} checked={this.state.filter.people}/>
-                  <label htmlFor="people"><span className="dot" style={{backgroundColor: '#1A05F3'}}/>Automatic</label>
+                  <label htmlFor="people"><span className="dot" style={{backgroundColor: '#1A05F3'}}/>Total Passengers (Automated)</label>
                   <input type="checkbox" id="annotated" name="annotated" value="annotated" onChange={this.handleFilter} checked={this.state.filter.annotated}/>
-                  <label htmlFor="annotated"><span className="dot" style={{backgroundColor: '#4DC274'}}/>Annotated</label>
+                  <label htmlFor="annotated"><span className="dot" style={{backgroundColor: '#4DC274'}}/>Total Passengers (Manual) </label>
                   <input type="checkbox" id="boarding" name="boarding" value="boarding" onChange={this.handleFilter} checked={this.state.filter.boarding}/>
-                  <label htmlFor="boarding"><span className="dot" style={{backgroundColor: '#F7F603'}}/>Boarding</label>
+                  <label htmlFor="boarding"><span className="dot" style={{backgroundColor: '#F7F603'}}/>Boarding (Manual)</label>
                   <input type="checkbox" id="alighting" name="alighting" value="alighting" onChange={this.handleFilter} checked={this.state.filter.alighting}/>
-                  <label htmlFor="alighting"><span className="dot" style={{backgroundColor: '#E20000'}}/>Alighting</label>
+                  <label htmlFor="alighting"><span className="dot" style={{backgroundColor: '#E20000'}}/>Alighting (Manual)</label>
                   <input type="checkbox" id="following" name="following" value="following" onChange={this.handleFilter} checked={this.state.filter.following}/>
-                  <label htmlFor="following">&#10060; COVID Regulations</label>
+                  <label htmlFor="following">&#10060; COVID Regulations Violations (Manual)</label>
                 </div>
                 <MapIndex stops={this.state.mapStops.sort((a, b) => {
                     let aUrl = a.url.toUpperCase()

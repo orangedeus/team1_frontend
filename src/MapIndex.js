@@ -118,7 +118,7 @@ class MapIndex extends React.Component {
                         }
                         markerRender.push(
                             //<Marker key={key + i} position={coord} icon={xIcon} />
-                            <ImageOverlay url={x} bounds={[[coord[0] - .00025, coord[1] - .00025], [coord[0] + .00025, coord[1] + .00025]]} interactive={true}>
+                            <ImageOverlay url={x} bounds={[[coord[0] - .0004, coord[1] - .0004], [coord[0] + .0004, coord[1] + .0004]]} interactive={true}>
                                 <Popup className='popup'>
                                     <ReactPlayer className='video' playing={true} url={this.url + '/videos/' + stops[i].url} stopOnUnmount={true} width={640} height={360} controls={true}/>
                                 </Popup>

@@ -424,7 +424,6 @@ a {
   display: inline-block;
   text-align: center;
   text-decoration: none;
-  cursor: text;
 }
 
 .custom-underline,
@@ -492,4 +491,30 @@ a {
   font-family: 'Cabin', sans-serif;
   margin-top: 3px;
   margin-bottom: 3px;
+}
+
+.code-row {
+  cursor: pointer;
+}
+
+.code-div {
+  border: solid 2px black;
+  border-radius: 10px;
+}
+
+.v-table {
+  display: table;
+  width: 100%;
+}
+
+.v-row {
+  display: table-row;
+}
+.v-cell {
+  display: table-cell;
+  text-align: center;
+}
+
+.v-code {
+  cursor: pointer;
 }
