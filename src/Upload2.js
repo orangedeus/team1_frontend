@@ -3,6 +3,7 @@ import Select from 'react-select';
 import {useDropzone} from 'react-dropzone';
 import axios from 'axios';
 
+import noRoute from './no-route.png';
 import ready from './ready.png';
 import uploaded from './uploaded.png';
 import processed from './processed.png';
@@ -60,6 +61,14 @@ const SingleFileUpload = forwardRef((props, ref) => {
             upload()
         }
     }, [status])
+
+    useEffect(() => {
+        if (status == 'noRoute') {
+            if (route != '') {
+                setStatus('ready')
+            }
+        }
+    }, [route])
 
     useImperativeHandle(ref, () => ({
         check: (bool) => {
@@ -140,6 +149,14 @@ const SingleFileUpload = forwardRef((props, ref) => {
     }
 
     const getStatusDisplay = () => {
+        if (status == 'noRoute') {
+            return (
+                <div className="ReadyStatusDisplay">
+                    <img src={noRoute} className="StatusImages" />
+                    <p className="ReadyLabel">No route selected!</p>
+                </div>
+            )
+        }
         if (status == 'ready') {
             return (
                 <div className="ReadyStatusDisplay">
@@ -254,7 +271,7 @@ export default function Upload2() {
             console.log(files)
             return files.map((file) => {
                 return {
-                    jsx: <SingleFileUpload key={file.name} ref={React.createRef()} file={file} route={route} status={statusControl} checked={all} />
+                    jsx: <SingleFileUpload key={file.name} ref={React.createRef()} file={file} route={route} status='noRoute' checked={all} />
                 }
             })
             /* let FileUploads = []
