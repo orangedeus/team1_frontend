@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import App from './App';
 import './App.css';
 import axios from 'axios';
@@ -14,6 +14,10 @@ function Upload() {
     const [routes, setRoutes] = useState([])
     const el = useRef()
     const selEl = useRef()
+
+    useEffect(() => {
+        console.log(files)
+    }, [files]);
 
     const handleChange = (e) => {
         setProgress(0)

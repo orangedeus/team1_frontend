@@ -150,7 +150,7 @@ class App extends React.Component {
   }
 
   render() {
-    console.log(this.state.stops)
+    console.log('Map stops ', this.state.mapStops)
     return(
       <Router>
         <Modal 

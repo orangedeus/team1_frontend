@@ -1,5 +1,6 @@
 import React from 'react';
 import Upload from './Upload';
+import Upload2 from './Upload2';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import Axios from 'axios';
@@ -95,7 +96,7 @@ class Admin extends React.Component {
     }
 
     handleTab = (index) => {
-        if (index == 3) {
+        if (index == 4) {
             console.log('reached upload tracking')
             Axios.get(this.url + '/process/tracking').then(res => {
                 this.setState({
@@ -107,7 +108,7 @@ class Admin extends React.Component {
                     this.setState({
                         tracking: res.data
                     })
-                    console.log('tracking update')
+                    console.log('tracking update', res.data)
                 })
             }, 3000)
         } else {
@@ -221,6 +222,7 @@ class Admin extends React.Component {
                             <Tab>Generate Codes</Tab>
                             <Tab>Volunteer Progress Monitoring</Tab>
                             <Tab>Upload</Tab>
+                            <Tab>Upload v2</Tab>
                             <Tab>Upload Tracking</Tab>
                             <Tab>Insert Routes</Tab>
                             <Tab>Checkpoint</Tab>
@@ -254,8 +256,11 @@ class Admin extends React.Component {
                                 </div>
                             </div>
                         </TabPanel>
-                        <TabPanel>
+                        <TabPanel forceRender={true}>
                             <Upload />
+                        </TabPanel>
+                        <TabPanel forceRender={true}>
+                            <Upload2 />
                         </TabPanel>
                         <TabPanel>
                             <table width='100%'>
