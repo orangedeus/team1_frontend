@@ -78,6 +78,9 @@ export default function Annotation(props) {
                 }
             }))
         })
+        window.addEventListener('scroll', (e) => {
+            e.preventDefault()
+        })
     }, [])
 
     const addToRenderedCondition = (i) => {

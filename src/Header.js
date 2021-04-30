@@ -20,7 +20,7 @@ export default function Header(props) {
                     {props.auth.user ? <Link className="link" to="/annotation"><button className={`btn1${activePath == '/annotation' ? ' btn1-active' : ''}`}>ANNOTATION</button></Link> : null}
                     {props.auth.admin ? <Link className="link" to="/admin"><button className={`btn1${activePath == '/admin' ? ' btn1-active' : ''}`}>ADMIN</button></Link> : null}
                 </div>
-                {props.auth.user ? <button className="btn3" onClick={props.logout} >LOGOUT</button> : <button className="btn3" onClick={props.login} >LOGIN</button>}
+                {props.auth.user ? <button className="btn1" onClick={props.logout} >LOGOUT</button> : <button className="btn1" onClick={props.login} >LOGIN</button>}
             </div>
         </div>
     )
