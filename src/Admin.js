@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Fade, { Slide } from 'react-reveal';
 import axios from 'axios';
 import { useFilters, useTable } from 'react-table';
+import { Line } from 'react-chartjs-2';
 
 import Upload from './Upload';
 import FormField from './FormField';
@@ -101,6 +102,50 @@ export default function Admin(props) {
     const [inst, setI] = useState([])
     const [codesInst, setCI] = useState([])
     const [codeFilter, setCF] = useState("")
+    const [chartData, setCD] = useState(
+        {
+            labels: [],
+            backgroundColor: 'white',
+            datasets: [
+                {
+                    label: '% reduced to',
+                    data: [],
+                    fill: false,
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgba(255, 99, 132, 0.2)'
+                },
+                {
+                    label: '# of splices',
+                    data: [],
+                    fill: false,
+                    backgroundColor: '#0F497D',
+                    borderColor: '#E2ECF4'
+                }
+            ]
+        }
+    )
+
+    const chartRef = useRef()
+
+    const defaultData = {
+        labels: [],
+        datasets: [
+            {
+                label: '% reduced to',
+                data: [],
+                fill: false,
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgba(255, 99, 132, 0.2)'
+            },
+            {
+                label: '# of splices',
+                data: [],
+                fill: false,
+                backgroundColor: '#0F497D',
+                borderColor: '#E2ECF4'
+            }
+        ]
+    }
 
     const columns = React.useMemo(
         () => [
@@ -111,6 +156,16 @@ export default function Admin(props) {
         ],
         []
     )
+
+    const options = {
+        scales: {
+            x: {
+                ticks: {
+                    display: false
+                }
+            }
+        }
+    }
 
     const columns1 = React.useMemo(
         () => [
@@ -160,6 +215,19 @@ export default function Admin(props) {
                 setDD(res.data)
             }).catch(e => {
                 console.log(e)
+            })
+            axios.get(url + '/process/tracking/stats').then(res => {
+                console.log('stats', res.data)
+                setCD(() => {
+                    let tempData = JSON.parse(JSON.stringify(defaultData))
+                    for (const stat of res.data) {
+                        tempData.labels.push(stat.filename)
+                        tempData.datasets[0].data.push((stat.resulting / stat.duration) * 100)
+                        tempData.datasets[1].data.push(stat.splices)
+                    }
+                    return tempData
+                })
+                console.log(chartRef)
             })
         }
         if (active == 'Volunteer Management') {
@@ -263,6 +331,14 @@ export default function Admin(props) {
                             <div className="DashboardHeader">{dashboardData.codes}</div>
                             <p className="DashboardLabel">Codes</p>
                         </div>
+                    </div>
+                    ,
+                    <div key="dashboard-4" className="ContentSection" style={{
+                        'width': '44%',
+                        'flexDirection': 'column'
+                    }}>
+                        <p className="SectionLabel">Stats</p>
+                        <Line ref={chartRef} data={chartData} options={options} />
                     </div>
                 ]
             )

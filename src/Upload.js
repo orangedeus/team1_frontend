@@ -7,6 +7,7 @@ import noRoute from './assets/no-route.png';
 import ready from './assets/ready.png';
 import uploaded from './assets/uploaded.png';
 import processed from './assets/processed.png';
+import failed from './assets/process-failed.png';
 
 function Dropzone(props) {
     /* const [files, setFiles] = useState(props.files)
@@ -82,6 +83,9 @@ const SingleFileUpload = forwardRef((props, ref) => {
         },
         processed: () => {
             setStatus("processed")
+        },
+        failed: () => {
+            setStatus("failed")
         },
         name: file.name,
         route: route,
@@ -194,6 +198,14 @@ const SingleFileUpload = forwardRef((props, ref) => {
                 <div className="ReadyStatusDisplay">
                     <img src={processed} className="StatusImages" />
                     <p className="ReadyLabel">Processed!</p>
+                </div>
+            )
+        }
+        if (status == 'failed') {
+            return (
+                <div className="ReadyStatusDisplay">
+                    <img src={failed} className="StatusImages" />
+                    <p className="ReadyLabel">Failed! :(</p>
                 </div>
             )
         }
@@ -317,11 +329,15 @@ export default function Upload() {
         })
         if (req.length) {
             axios.post(url + "/v2/process/process", req).then(res => {
-                console.log(res.data)
+                let result = res.data
                 for (let upload of Uploads) {
                     let uploadState = upload.jsx.ref.current;
                     if ((uploadState.status == 'processing') && (uploadState.checked)) {
-                        uploadState.processed()
+                        if (result[uploadState.name] != 'ok') {
+                            uploadState.failed()
+                        } else {
+                            uploadState.processed()
+                        }
                     }
                 }
             })

@@ -9,14 +9,27 @@ const SVG404 = (props) => {
     const sign = useRef()
     const [signboard, setSB] = useState(
         <path d="M173 127.3h59v21.4h-59z" />
-    ) 
+    )
+    const [stick, setStick] = useState(
+      <g>
+        <circle cx={203.7} cy={125.4} r={5.1} opacity={0.61} fill="#dfebf4" />
+        <circle cx={203.7} cy={125.4} r={2.4} opacity={0.61} fill="#6f98b2" />
+      </g>
+    )
 
     useEffect(() => {
         let text = document.getElementById('sign')
         let SVGRect = text.getBBox()
         let newSB = ( 
-            <rect x={175.04 - 5} y={145.766 + 5 - SVGRect.height} width={Math.max(50, SVGRect.width)} height={SVGRect.height} fill="black" />
+            <rect x={175.04 - 3} y={145.766 + 5 - SVGRect.height} width={Math.max(23, SVGRect.width - (SVGRect.width / 20))} height={SVGRect.height} fill="black" />
         )
+        let newStick = (
+          <g>
+            <circle cx={175.04 + (SVGRect.width / 2)} cy={125.4} r={5.1} opacity={0.61} fill="#dfebf4" />
+            <circle cx={175.04 + (SVGRect.width / 2)} cy={125.4} r={2.4} opacity={0.61} fill="#6f98b2" />
+          </g>
+        )
+        setStick(newStick)
         setSB(newSB)
     }, [])
 
@@ -165,12 +178,9 @@ const SVG404 = (props) => {
               fill="#00f500"
               id="sign"
             >
-              {(useLocation().pathname).substring(1).toUpperCase().substring(0, 5)}
+              {(useLocation().pathname).substring(1).toUpperCase().substring(0, 8)}
             </text>
-            <g>
-              <circle cx={203.7} cy={125.4} r={5.1} opacity={0.61} fill="#dfebf4" />
-              <circle cx={203.7} cy={125.4} r={2.4} opacity={0.61} fill="#6f98b2" />
-            </g>
+            {stick}
             <g>
               <path opacity={0.31} fill="#e7edd9" d="M139.8 111.3h166v50.4h-166z" />
               <path
