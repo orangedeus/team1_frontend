@@ -57,6 +57,8 @@ const SingleFileUpload = forwardRef((props, ref) => {
     const [checked, setChecked] = useState(props.checked)
     const [status, setStatus] = useState(props.status)
 
+    const selectRef = React.createRef()
+
     useEffect(() => {
         if (status == 'uploading') {
             upload()
@@ -68,6 +70,9 @@ const SingleFileUpload = forwardRef((props, ref) => {
             if (route != '') {
                 setStatus('ready')
             }
+        }
+        if (route == '') {
+            setStatus('noRoute')
         }
     }, [route])
 
@@ -86,6 +91,17 @@ const SingleFileUpload = forwardRef((props, ref) => {
         },
         failed: () => {
             setStatus("failed")
+        },
+        changeRoute: (e) => {
+            console.log(selectRef.current.state.value)
+            if (e.value == 'nothing') {
+                console.log('should remove selection')
+                selectRef.current.state.value = null
+                setRoute('')
+                return
+            }
+            handleSelectChange(e)
+            selectRef.current.state.value = e
         },
         name: file.name,
         route: route,
@@ -229,7 +245,7 @@ const SingleFileUpload = forwardRef((props, ref) => {
                 <label htmlFor={`checkbox-${file.name}`}>
                     {file.name}
                 </label>
-                <Select options={routes} className="select-single3" isSearchable={false} onMenuOpen={handleSelect} onChange={handleSelectChange} />
+                <Select key={`select-route-${file.name}`} placeholder="Select route" ref={selectRef} options={routes} className="select-single3" isSearchable={false} onMenuOpen={handleSelect} onChange={handleSelectChange} />
             </div>
             <div className="StatusDisplay">
                 {getStatusDisplay()}
@@ -320,6 +336,28 @@ export default function Upload() {
         }
     }
 
+    const handleDelete = () => {
+        let req = Uploads.filter((upload) => {
+            let uploadState = upload.jsx.ref.current
+            return (uploadState.checked)
+        }).map((upload) => {
+            return {filename: upload.jsx.ref.current.name}
+        })
+        axios.post(url + "/v2/process/delete", req).then(res => {
+            console.log(res)
+        }).catch(e => {
+            console.log(e)
+        })
+        setFiles((curr) => {
+            return curr.filter((element) => {
+                let index = Uploads.findIndex((i) => {
+                    return i.jsx.ref.current.name == element.name
+                })
+                return !Uploads[index].jsx.ref.current.checked
+            })
+        })
+    }
+
     const handleProcess = () => {
         let req = Uploads.filter((upload) => {
             let uploadState = upload.jsx.ref.current
@@ -340,35 +378,38 @@ export default function Upload() {
                         }
                     }
                 }
+            }).catch(e => {
+                console.log(e)
             })
         }
     }
 
     const handleFinish = () => {
-        axios.get(url + "/v2/process/finish").then((res) => {
-            console.log(res.data)
-            axios.get(instance_url +"/instance/stop").then(() => {
-                setInstance(false)
-                setFiles([])
-            }).catch((e) => {
-                console.log(e)
-            })
-        })
-    }
-
-    const handleDelete = () => {
-        setFiles((curr) => {
-            return curr.filter((element) => {
-                let index = Uploads.findIndex((i) => {
-                    return i.jsx.ref.current.name == element.name
-                })
-                return !Uploads[index].jsx.ref.current.checked
-            })
+        axios.get(instance_url +"/instance/stop").then(() => {
+            setInstance(false)
+            setFiles([])
+        }).catch((e) => {
+            console.log(e)
         })
     }
 
     const getFiles = (files) => {
         setFiles(files)
+    }
+
+    const handleSelect = (e) => {
+        axios.get(instance_url + '/routes').then((res) => {
+            setRoutes([{value: 'nothing', label: 'Select individually'}].concat(res.data))
+        })
+    }
+
+    const handleSelectChange = (e) => {
+        for (let upload of Uploads) {
+            let uploadState = upload.jsx.ref.current
+            if (uploadState.checked) {
+                uploadState.changeRoute(e)
+            }
+        }
     }
 
     return(
@@ -386,6 +427,7 @@ export default function Upload() {
                     <button className="btn3" onClick={handleProcess} disabled={!instance}>Process</button>
                     <button className="btn3" onClick={handleFinish} disabled={!instance}>Finish</button>
                     <button className="btn3" onClick={handleDelete}>Delete</button>
+                    <Select placeholder="Select for checked" key={`select-all`} options={routes} className="RouteSelect2" isSearchable={false} onMenuOpen={handleSelect} onChange={handleSelectChange} />
                 </div>
                 <div className="UploadDisplay">
                     {Uploads.map((upload) => {return upload.jsx})}

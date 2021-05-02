@@ -5,16 +5,20 @@ import { useFilters, useTable } from 'react-table';
 import { Line } from 'react-chartjs-2';
 
 import Upload from './Upload';
+import Checkpoint from './Checkpoint';
 import FormField from './FormField';
 
 import dashboard from './assets/dashboard.svg';
 import up from './assets/uploadprocess.svg';
 import generate from './assets/create.svg';
 import volunteer from './assets/volunteer.svg';
+import control from './assets/settings.svg';
 import stops from './assets/stops.svg';
 import anno from './assets/annotations.svg';
 import vid from './assets/uploaded.svg';
 import codes from './assets/code.svg';
+import refresh from './assets/reload.svg';
+import nuke from './assets/nuke.svg';
 
 import { forwardRef, useImperativeHandle } from 'react';
 
@@ -102,6 +106,8 @@ export default function Admin(props) {
     const [inst, setI] = useState([])
     const [codesInst, setCI] = useState([])
     const [codeFilter, setCF] = useState("")
+    const [confirm, setConfirm] = useState(false)
+    const [tracking, setTracking] = useState([])
     const [chartData, setCD] = useState(
         {
             labels: [],
@@ -124,6 +130,27 @@ export default function Admin(props) {
             ]
         }
     )
+
+    const backupRef = React.createRef()
+
+    const handleBackup = () => {
+        if (!backupRef) {
+            return
+        }
+        if (!backupRef.current.valid) {
+            return
+        }
+        let backupName = backupRef.current.input
+        if (backupName == '' || backupName == null) {
+            return
+        }
+        axios.post(url + '/backups/backup', {backup: backupName}).then(res => {
+            console.log(res)
+            window.location.reload()
+        }).catch(e => {
+            console.log(e)
+        })
+    }
 
     const chartRef = useRef()
 
@@ -202,6 +229,29 @@ export default function Admin(props) {
         ],
         []
     )
+
+    const columns3 = React.useMemo(
+        () => [
+            {
+                Header: 'ID',
+                accessor: 'id'
+            },
+            {
+                Header: 'Filename',
+                accessor: 'filename'
+            },
+            {
+                Header: 'Route',
+                accessor: 'route'
+            },
+            {
+                Header: 'Status',
+                accessor: 'status'
+            }
+        ],
+        []
+    )
+
     const handleClick = (e) => {
         if (e.target.className != "clickableCell") {
             setCF("")
@@ -210,6 +260,9 @@ export default function Admin(props) {
 
     useEffect(() => {
         console.log(active)
+        if (active != 'Upload & Process') {
+            setConfirm(false)
+        }
         if (active == 'Dashboard') {
             axios.get(url + '/dashboard').then(res => {
                 setDD(res.data)
@@ -242,6 +295,9 @@ export default function Admin(props) {
                 console.log(e)
             })
         }
+        if (active == 'Upload & Process') {
+            getTracking()
+        }
     }, [active])
 
     const SidebarButton = (label, icon) => {
@@ -256,6 +312,14 @@ export default function Admin(props) {
     }
 
     const generateRef = React.createRef()
+
+    const getTracking = () => {
+        axios.get(url + '/process/tracking').then(res => {
+            setTracking(res.data)
+        }).then(e => {
+            console.log(e)
+        })
+    }
 
     const handleGenerate = () => {
         console.log('generating')
@@ -276,6 +340,29 @@ export default function Admin(props) {
         .catch(e => {
             console.log(e)
         })
+    }
+
+    const insertRef = React.createRef()
+
+    const handleInsertRoute = () => {
+        console.log('inserting')
+        if (!insertRef) {
+            return
+        }
+        if (!insertRef.current.valid) {
+            return
+        }
+        console.log(insertRef.current.input)
+        let req = {
+            route: insertRef.current.input
+        }
+        axios.post(url + '/routes/insert', req).then(res => {
+            console.log(res.data)
+            if (res.data == 'Success!') {
+                console.log('setting confirm')
+                setConfirm(true)
+            }
+        }).catch(e => {console.log(e)})
     }
 
     const handleCellClick = (e) => {
@@ -337,7 +424,7 @@ export default function Admin(props) {
                         'width': '44%',
                         'flexDirection': 'column'
                     }}>
-                        <p className="SectionLabel">Stats</p>
+                        <p className="SectionLabel">Video processing stats</p>
                         <Line ref={chartRef} data={chartData} options={options} />
                     </div>
                 ]
@@ -349,7 +436,7 @@ export default function Admin(props) {
                     <div key="generate-codes" className="ContentSection" style={{'width': '20%'}}>
                         <p className="SectionLabel">Generate codes</p>
                         <form autoComplete="off" className="GenerateForm">
-                            <FormField ref={generateRef} className="GenerateField" fieldName="generated" labelName="Number of codes to be generated" type="text" />
+                            <FormField ref={generateRef} validateField={validateGenerateField} className="GenerateField" fieldName="generated" labelName="Number of codes to be generated" type="text" />
                             <button className="btn3" type="button" onClick={handleGenerate}>Generate</button>
                         </form>
                     </div>,
@@ -396,14 +483,91 @@ export default function Admin(props) {
         if (active == "Upload & Process") {
             return (
                 [
+                    <div key="insert-route" className="ContentSection" style={{'width': '30%'}}>
+                        <p className="SectionLabel" >Insert routes</p>
+                        <form autoComplete="off" className="GenerateForm">
+                            <FormField ref={insertRef} validateField={validateRouteField} className="GenerateField" fieldName="route" labelName="Insert route name" type="text" />
+                            <div className="flex-row">
+                                <button className="btn3" type="button" onClick={handleInsertRoute}>Add</button>
+                                {confirm && <span>&#10004;</span>}
+                            </div>
+                        </form>
+                    </div>,
                     <div key="upload-process" className="ContentSection" style={{'width': '100%'}}>
                         <p className="SectionLabel" >Upload and process files</p>
                         <Upload />
+                    </div>,
+                    <div key="upload-tracking" className="ContentSection" style={{'width': '100%'}}>
+                        <p className="SectionLabel flex-row" >Upload tracking<img src={refresh} alt="refresh" className="SidebarButtonIcon" style={{cursor: 'pointer'}} onClick={getTracking} /></p>
+                        <Table name="t" columns={columns3} data={tracking} />
+                    </div>
+                ]
+            )
+        }
+        if (active == "System Control") {
+            return (
+                [
+                    <div key="backup" className="ContentSection" style={{'width': '25%'}}>
+                        <p className="SectionLabel" >Backup</p>
+                        <form autoComplete="off" className="GenerateForm">
+                            <FormField ref={backupRef} validateField={validateRouteField} className="GenerateField" fieldName="backup" labelName="Backup name" type="text" />
+                            <button className="btn3" type="button" onClick={handleBackup}>Backup</button>
+                        </form>
+                    </div>,
+                    <div key="backup-control" className="ContentSection" style={{'width': '65%'}}>
+                        <p className="SectionLabel">Backup Control</p>
+                        <Checkpoint />
+                    </div>,
+                    <div key="nukes" className="ContentSection" style={{'width': '100%', justifyContent: 'center'}}>
+                        <p className="SectionLabel">Nukes</p>
+                        <div className="flex-row spadding" style={{width: '30%', justifyContent: 'space-around'}}>
+                            <div className="NukeButton" style={{cursor: 'pointer', width: '2rem', height: '2rem'}}>
+                                <img src={nuke} className="NukeImg" alt="nuke" />
+                            </div>
+                            <div className="NukeButton" style={{cursor: 'pointer', width: '3rem', height: '3rem'}}>
+                                <img src={nuke} className="NukeImg" alt="nuke" />
+                            </div>
+                            <div className="NukeButton" style={{cursor: 'pointer', width: '4rem', height: '4rem'}}>
+                                <img src={nuke} className="NukeImg" alt="nuke" />
+                            </div>
+                        </div>
                     </div>
                 ]
             )
         }
     }
+
+    const isPositiveInteger = (str) => {
+        return /^(0|[1-9]\d*)$/.test(str)
+    }
+
+    const validateGenerateField = (input) => {
+        let tempValid = true
+        let tempEM = ''
+        console.log(input)
+        if (!isPositiveInteger(input)) {
+            tempValid = false
+            tempEM = ERRORMSGS[0]
+        }
+        if (parseInt(input) < 0) {
+            tempValid = false
+            tempEM = ERRORMSGS[1]
+        }
+        if (input == '') {
+            tempValid = false
+            tempEM = ERRORMSGS[0]
+        }
+        return [tempValid, tempEM]
+    }
+
+    const validateRouteField = () => {
+        return [true, '']
+    }
+
+    const ERRORMSGS = [
+        'Please input a number',
+        'Negative numbers are not accepted'
+    ]
 
     return (
         <div className="Admin">
@@ -412,6 +576,7 @@ export default function Admin(props) {
                     {SidebarButton("Dashboard", dashboard)}
                     {SidebarButton("Volunteer Management", volunteer)}
                     {SidebarButton("Upload & Process", up)}
+                    {SidebarButton("System Control", control)}
                 </div>
             </Slide>
             <Fade duration={1000} cascade>

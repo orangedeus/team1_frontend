@@ -27,31 +27,12 @@ const FormField = forwardRef((props, ref) => {
 
     useEffect(() => {
         if (!(input == null)) {
-            validateField()
+            let [tempValid, errorMessage] = props.validateField(input)
+            console.log(tempValid, errorMessage)
+            setValid(tempValid)
+            setErrorMsg(errorMessage)
         }
     }, [input])
-
-    const isPositiveInteger = (str) => {
-        return /^(0|[1-9]\d*)$/.test(str)
-    }
-
-    const validateField = () => {
-        let tempValid = true
-        console.log('input', input)
-        if (!isPositiveInteger(input)) {
-            tempValid = false
-            setErrorMsg(ERRORMSGS[0])
-        }
-        if (parseInt(input) < 0) {
-            tempValid = false
-            setErrorMsg(ERRORMSGS[1])
-        }
-        if (input == '') {
-            tempValid = false
-            setErrorMsg(ERRORMSGS[0])
-        }
-        setValid(tempValid)
-    }
 
     const handleInputChange = (e) => {
         setInput(e.target.value)

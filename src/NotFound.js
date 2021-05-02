@@ -173,7 +173,6 @@ const SVG404 = (props) => {
             <text
               transform="matrix(0.85 0 0 1 175.04 145.766)"
               fontSize={24.329}
-              textAlign={'justify'}
               fontFamily={"Cubao Free Regular"}
               fill="#00f500"
               id="sign"
