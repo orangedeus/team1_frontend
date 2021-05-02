@@ -493,7 +493,7 @@ export default function Admin(props) {
                             </div>
                         </form>
                     </div>,
-                    <div key="upload-process" className="ContentSection" style={{'width': '100%'}}>
+                    <div key="upload-process" className="ContentSection" style={{'width': '100%', 'zIndex': 10}}>
                         <p className="SectionLabel" >Upload and process files</p>
                         <Upload />
                     </div>,
@@ -514,7 +514,7 @@ export default function Admin(props) {
                             <button className="btn3" type="button" onClick={handleBackup}>Backup</button>
                         </form>
                     </div>,
-                    <div key="backup-control" className="ContentSection" style={{'width': '65%'}}>
+                    <div key="backup-control" className="ContentSection" style={{'width': '65%', 'zIndex': 10}}>
                         <p className="SectionLabel">Backup Control</p>
                         <Checkpoint />
                     </div>,
