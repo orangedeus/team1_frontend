@@ -270,7 +270,7 @@ export default function Annotation(props) {
                     <span className="down"onClick={handleNext}/>
                 </div>
                 <div className="FormContainer">
-                    <h1>{`${index + 1} / ${videos.length}`}</h1>
+                    <h1>{`${videos.length != 0 ? index + 1 : 0} / ${videos.length}`}</h1>
                     <Fade left collapse opposite when={!validForm}>
                         <div className="ErrorBox" >
                             <div className="ErrorIcon">!</div>

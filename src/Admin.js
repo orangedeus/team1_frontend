@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 import Fade, { Slide } from 'react-reveal';
 import axios from 'axios';
 import { useFilters, useTable } from 'react-table';
@@ -7,6 +8,7 @@ import { Line } from 'react-chartjs-2';
 import Upload from './Upload';
 import Checkpoint from './Checkpoint';
 import FormField from './FormField';
+import ErrorModal from './ErrorModal';
 
 import dashboard from './assets/dashboard.svg';
 import up from './assets/uploadprocess.svg';
@@ -521,10 +523,10 @@ export default function Admin(props) {
                     <div key="nukes" className="ContentSection" style={{'width': '100%', justifyContent: 'center'}}>
                         <p className="SectionLabel">Nukes</p>
                         <div className="flex-row spadding" style={{width: '30%', justifyContent: 'space-around'}}>
-                            <div className="NukeButton" style={{cursor: 'pointer', width: '2rem', height: '2rem'}}>
+                            <div className="NukeButton" style={{cursor: 'pointer', width: '2rem', height: '2rem'}} onClick={() => {ReactDOM.render(<ErrorModal msg="This will empty annotations." confirmCallback={handleLesserNuke} />, document.getElementById('modal'))}}>
                                 <img src={nuke} className="NukeImg" alt="nuke" />
                             </div>
-                            <div className="NukeButton" style={{cursor: 'pointer', width: '3rem', height: '3rem'}}>
+                            <div className="NukeButton" style={{cursor: 'pointer', width: '3rem', height: '3rem'}} onClick={() => {ReactDOM.render(<ErrorModal msg="This will empty stops, annotations and routes." confirmCallback={handleRegularNuke} />, document.getElementById('modal'))}}>
                                 <img src={nuke} className="NukeImg" alt="nuke" />
                             </div>
                             <div className="NukeButton" style={{cursor: 'pointer', width: '4rem', height: '4rem'}}>
@@ -535,6 +537,22 @@ export default function Admin(props) {
                 ]
             )
         }
+    }
+
+    const handleLesserNuke = () => {
+        axios.get(url + '/nuke/annotations').then(() => {
+            window.location.reload()
+        }).catch(e => {
+            console.log(e)
+        })
+    }
+
+    const handleRegularNuke = () => {
+        axios.get(url + '/nuke').then(() => {
+            window.location.reload()
+        }).catch(e => {
+            console.log(e)
+        })
     }
 
     const isPositiveInteger = (str) => {
@@ -570,7 +588,8 @@ export default function Admin(props) {
     ]
 
     return (
-        <div className="Admin">
+        <div id="admin" className="Admin">
+            <div id="modal"/>
             <Slide left duration={500}>
                 <div className="AdminSidebar">
                     {SidebarButton("Dashboard", dashboard)}

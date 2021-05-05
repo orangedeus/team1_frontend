@@ -196,7 +196,7 @@ const SingleFileUpload = forwardRef((props, ref) => {
         if (status =='uploaded') {
             return (
                 <div className="ReadyStatusDisplay">
-                    <img src={uploaded} className="StatusImages" />
+                    <a href={`${url}/watch/${file.name}`} target="_blank" type="video/mp4"><img src={uploaded} className="StatusImages" /></a>
                     <p className="ReadyLabel">Uploaded</p>
                 </div>
             )
@@ -426,7 +426,7 @@ export default function Upload() {
                     <button className="btn3" onClick={handleUpload} disabled={!instance}>Upload</button>
                     <button className="btn3" onClick={handleProcess} disabled={!instance}>Process</button>
                     <button className="btn3" onClick={handleFinish} disabled={!instance}>Finish</button>
-                    <button className="btn3" onClick={handleDelete}>Delete</button>
+                    <button className="btn3" onClick={handleDelete} disabled={!instance}>Delete</button>
                     <Select placeholder="Select for checked" key={`select-all`} options={routes} className="RouteSelect2" isSearchable={false} onMenuOpen={handleSelect} onChange={handleSelectChange} />
                 </div>
                 <div className="UploadDisplay">
