@@ -448,7 +448,7 @@ export default function Admin(props) {
                             <Table name="c" columns={columns} data={generatedCodes.length ? generatedCodes.map((code) => {return {code: code}}) : [{code: <span style={{color: 'gray'}}>Nothing to display.</span>}]} />
                         </div>
                     </div>,
-                    <div key="generate-codes2" className="ContentSection" style={{'width': '70%', 'maxHeight': '40%'}}>
+                    <div key="generate-codes2" className="ContentSection" style={{'width': '70%', 'minHeight': '30%', 'maxHeight': '40%'}}>
                         <p className="SectionLabel" >Volunteer code monitoring</p>
                         <div className="SectionContent">
                             <Table name="vc" cellClick={handleCellClick} columns={columns1} data={codesInst.map((record) => {

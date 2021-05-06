@@ -114,7 +114,8 @@ const SingleFileUpload = forwardRef((props, ref) => {
         let bytes
         axios.get(url + `/v2/process/check/${file.name}`).then(res => {
             bytes = res.data.bytes
-            if (bytes == 0) {
+            console.log(file.name, bytes, file.size)
+            if (bytes == 0 || bytes == file.size) {
                 console.log('initialized tracking')
                 let req = {
                     stage: 'initial',
