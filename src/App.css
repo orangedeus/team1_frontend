@@ -111,9 +111,7 @@ html, body {
 }
 
 .Content {
-  height: -webkit-fill-available;
-  height: -moz-available;
-  height: fill-available;
+  height: stretch;
 }
 
 .Home {
@@ -921,4 +919,115 @@ html, body {
 
 .smargin {
   margin: 0.25rem;
+}
+
+.underlign-design {
+  text-decoration-color: rgb(198, 247, 20);
+  text-decoration-thickness: 0.5rem;
+}
+
+.waypoint {
+  color: aqua;
+}
+
+.About {
+  min-height: 100%;
+  height: auto;
+}
+
+.AboutHeader {
+  height: calc(100vh - 150px);
+  width: 100%;
+  background-color: rgb(13, 63, 66);
+  background-image: url('./assets/header.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: bottom;
+}
+
+.AboutContainer {
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 60%;
+  height: 100%;
+  padding: 2rem;
+}
+
+.AboutHeaderLabel {
+  font-size: 5rem;
+  text-align: left;
+}
+
+.AboutHeaderText {
+  font-size: 1.5rem;
+  font-family: 'IBM Plex Sans', sans-serif;
+  text-align: left;
+  font-weight: bold;
+}
+
+.AboutWriteUp {
+  background-image: url('./assets/banner.svg');
+  height: 650px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.WriteUpHeader {
+  font-size: 2.5rem;
+}
+
+.WriteUpText {
+  width: 40%;
+  text-align: left;
+  margin: 1rem;
+  font-size: 20px;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.wrap-text {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.custom-underline {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.custom-underline,
+.custom-underline:hover,
+.custom-underline:focus,
+.custom-underline:active {
+  color: rgb(1, 223, 223);
+  text-decoration: none;
+}
+
+.custom-underline::after {
+  content: "";
+  position: absolute;
+}
+
+.wrap-text .custom-underline::after {
+  top: 100%;
+  height: 2px;
+  width: 0%;
+  left: 0%;
+  background-color: rgb(1, 223, 223);
+    transition: 0.5s ease all .3s;
+}
+
+.wrap-text:hover .custom-underline::after {
+  width: 100%;
+    transition: 0.3s ease all;
 }

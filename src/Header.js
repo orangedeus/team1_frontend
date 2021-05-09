@@ -17,6 +17,7 @@ export default function Header(props) {
             <div className="Control">
                 <div className="Navigation">
                     <Link className="link" to="/"><button className={`btn1${activePath == '/' ? ' btn1-active' : ''}`}>HOME</button></Link>
+                    <Link className="link" to="/about"><button className={`btn1${activePath == '/about' ? ' btn1-active' : ''}`}>ABOUT</button></Link>
                     {props.auth.user ? <Link className="link" to="/annotation"><button className={`btn1${activePath == '/annotation' ? ' btn1-active' : ''}`}>ANNOTATION</button></Link> : null}
                     {props.auth.admin ? <Link className="link" to="/admin"><button className={`btn1${activePath == '/admin' ? ' btn1-active' : ''}`}>ADMIN</button></Link> : null}
                 </div>

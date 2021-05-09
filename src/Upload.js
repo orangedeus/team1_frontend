@@ -164,7 +164,6 @@ const SingleFileUpload = forwardRef((props, ref) => {
             })
         }).catch(async (e) => {
             console.log(e)
-            await upload()
             return
         })
     }

@@ -11,6 +11,7 @@ import axios from 'axios';
 
 import Header from './Header';
 import Home from './Home';
+import About from './About';
 import Annotation from './Annotation';
 import Admin from './Admin';
 import NotFound from './NotFound';
@@ -158,6 +159,9 @@ function App() {
           {auth.user ? <Route exact path="/annotation">
             <Annotation code={auth.code} />
           </Route> : null}
+          <Route exact path="/about">
+            <About />
+          </Route>
           <Route exact path="/">
             <Home />
           </Route>
