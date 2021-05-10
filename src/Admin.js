@@ -132,6 +132,38 @@ export default function Admin(props) {
             ]
         }
     )
+    const [timeData, setTD] = useState(
+        {
+            labels: [],
+            backgroundColor: 'white',
+            datasets: []
+        }
+    )
+
+    const defaultData = {
+        labels: [],
+        datasets: [
+            {
+                label: '% reduced to',
+                data: [],
+                fill: false,
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgba(255, 99, 132, 0.2)'
+            },
+            {
+                label: '# of splices',
+                data: [],
+                fill: false,
+                backgroundColor: '#0F497D',
+                borderColor: '#E2ECF4'
+            }
+        ]
+    }
+
+    const defaultTD = {
+        labels: [],
+        datasets: []
+    }
 
     const backupRef = React.createRef()
 
@@ -155,26 +187,6 @@ export default function Admin(props) {
     }
 
     const chartRef = useRef()
-
-    const defaultData = {
-        labels: [],
-        datasets: [
-            {
-                label: '% reduced to',
-                data: [],
-                fill: false,
-                backgroundColor: 'rgb(255, 99, 132)',
-                borderColor: 'rgba(255, 99, 132, 0.2)'
-            },
-            {
-                label: '# of splices',
-                data: [],
-                fill: false,
-                backgroundColor: '#0F497D',
-                borderColor: '#E2ECF4'
-            }
-        ]
-    }
 
     const columns = React.useMemo(
         () => [
@@ -283,6 +295,37 @@ export default function Admin(props) {
                     return tempData
                 })
                 console.log(chartRef)
+            })
+            axios.get(url + '/instrumentation/codes2').then(async (res) => {
+                let codes = res.data
+                let tempTD = JSON.parse(JSON.stringify(defaultTD))
+                let sres = await axios.get(url + '/instrumentation/splices')
+                let tempLabels = sres.data
+                tempTD.labels = tempLabels
+                for (const key of Object.keys(codes)) {
+                    let res = await axios.get(url + '/instrumentation/code/' + codes[key].code)
+                    console.log(res.data)
+                    let tData = tempLabels.map((splice) => {
+                        let time = null
+                        for (let entry of res.data) {
+                            if (entry.file == splice) {
+                                time = entry.time
+                            }
+                        }
+                        return time
+                    })
+                    console.log('tData:', tData)
+                    let tempDataset = {
+                        label: codes[key].code,
+                        fill: false,
+                        data: tData,
+                        backgroundColor: '#' + Math.floor(Math.random()*16777215).toString(16),
+                        borderColor: '#' + Math.floor(Math.random()*16777215).toString(16)
+                    }
+                    tempTD.datasets.push(tempDataset)
+                }
+                console.log('tempTD:', tempTD)
+                setTD(tempTD)
             })
         }
         if (active == 'Volunteer Management') {
@@ -428,6 +471,13 @@ export default function Admin(props) {
                     }}>
                         <p className="SectionLabel">Video processing stats</p>
                         <Line ref={chartRef} data={chartData} options={options} />
+                    </div>,
+                    <div key="dashboard-5" className="ContentSection" style={{
+                        'width': '44%',
+                        'flexDirection': 'column'
+                    }}>
+                        <p className="SectionLabel">Splice annotation stats</p>
+                        <Line ref={chartRef} data={timeData} options={options} />
                     </div>
                 ]
             )

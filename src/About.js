@@ -6,7 +6,7 @@ export default function About() {
             <div className="AboutHeader">
                 <div className="AboutContainer">
                     <h1 className="AboutHeaderLabel">
-                        Making each stop <u className="underlign-design">count.</u>
+                        Making each stop <u className="underlign-design">count</u>.
                     </h1>
                     <p className="AboutHeaderText">
                         This is the official website of <span className="waypoint">Waypoint</span>, a part of the Arangkadata project by the University of the Philippines – Diliman, funded by the Department of Science and Technology, and supported by the Department of Transportation.
