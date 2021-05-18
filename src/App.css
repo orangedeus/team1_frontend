@@ -391,6 +391,14 @@ html, body {
   height: 20px;
 }
 
+.error-msg2 {
+  padding: 0.3rem;
+  position: absolute;
+  display: flex;
+  height: 20px;
+  line-height: 0px;
+}
+
 .ErrorBox {
   width: 250px;
   height: auto;
@@ -488,7 +496,7 @@ html, body {
 }
 
 .input-button {
-  margin-top: 16px;
+  margin-top: 10px;
   width: 32px;
   height: 32px;
   border: none;
@@ -497,6 +505,7 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
+  line-height: 0px;
 }
 
 .input-button:hover {
@@ -921,6 +930,11 @@ html, body {
   margin: 0.25rem;
 }
 
+.smargin2 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
 .underlign-design {
   text-decoration-color: rgb(198, 247, 20);
   text-decoration-thickness: 0.5rem;
@@ -1030,4 +1044,94 @@ html, body {
 .wrap-text:hover .custom-underline::after {
   width: 100%;
     transition: 0.3s ease all;
+}
+
+.Survey {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-height: calc(100vh - 150px);
+
+  background-image: url('./assets/survey-bg.svg');
+  background-size: cover;
+  background-position: right;
+}
+
+.SurveyWelcome {
+  width: 50%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 2rem;
+}
+
+.SWelcomeHeader {
+  font-size: 5rem;
+}
+
+.SWelcomeText {
+  text-align: left;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 1.5rem;
+}
+
+.GetStarted {
+  margin-top: 4rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+
+  font-size: 1.5rem;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: white;
+
+  border: none;
+  border-radius: 5rem;
+  background-color: orange;
+  font-weight: bold;
+
+  cursor: pointer;
+}
+
+.GetStarted:hover {
+  background-color: rgb(226, 149, 5);
+}
+
+.SurveyFormContainer {
+  width: 50%;
+  min-height: calc(100vh - 150px);
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+}
+
+.SurveyForm {
+  width: 80%;
+}
+
+.SurveySubmit {
+  margin-top: 2rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+
+  font-size: 1.5rem;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: white;
+
+  border: none;
+  border-radius: 5rem;
+  background-color: rgb(237, 177, 254);
+  font-weight: bold;
+
+  cursor: pointer;
+}
+
+.SurveySubmit:hover {
+  background-color: rgb(195, 133, 212);
 }

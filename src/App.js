@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom';
 import Modal from 'react-modal';
 import axios from 'axios';
+import Fade from 'react-reveal';
 
 import Header from './Header';
 import Home from './Home';
@@ -35,6 +36,7 @@ function App() {
     }
   )
   const [loggingIn, setLoggingIn] = useState(false)
+  const [validLogin, setVL] = useState(true)
 
   const codeRef = React.createRef()
 
@@ -68,9 +70,7 @@ function App() {
   }
 
   const handleLogoutPress = () => {
-    localStorage.setItem('valid', 0)
-    localStorage.setItem('admin', 0)
-    localStorage.setItem('code', '')
+    localStorage.clear()
     setAuth(
       {
         user: 0,
@@ -88,10 +88,15 @@ function App() {
         code: loginCode
       }
     ).then((res) => {
-      setAuth(res.data)
-      localStorage.setItem('valid', res.data.user)
-      localStorage.setItem('admin', res.data.admin)
-      localStorage.setItem('code', loginCode)
+      if (res.data.user == 0) {
+        setVL(false)
+      } else {
+        setVL(true)
+        setAuth(res.data)
+        localStorage.setItem('valid', res.data.user)
+        localStorage.setItem('admin', res.data.admin)
+        localStorage.setItem('code', loginCode)
+      }
     })
   }
 
@@ -106,7 +111,7 @@ function App() {
       <Modal 
         isOpen={loggingIn}
         closeTimeoutMS={1000}
-        onRequestClose={() => {setLoggingIn(false)}}
+        onRequestClose={() => {setVL(true); setLoggingIn(false)}}
         shouldCloseOnOverlayClick={true}
         style={{
           overlay: {
@@ -145,6 +150,11 @@ function App() {
         <div className="animated-input-field">
           <input ref={codeRef} className="animated-input" type="password" id="code" onKeyUp={handleKeyPress} required />
           <label className="animated-label" htmlFor="code">CODE</label>
+          <Fade bottom collapse when={!validLogin}>
+            <small className="error-msg2" style={{color: 'red'}}>
+                Invalid code
+            </small>
+          </Fade>
           <button type="submit" className="input-button" onClick={handleLogin}>
             <img src={submit} alt="Submit" className="input-img" />
           </button>
@@ -157,7 +167,7 @@ function App() {
             <Admin code={auth.code} />
           </Route> : null}
           {auth.user ? <Route exact path="/annotation">
-            <Annotation code={auth.code} />
+            <Annotation auth={auth} />
           </Route> : null}
           <Route exact path="/about">
             <About />

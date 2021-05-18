@@ -132,13 +132,6 @@ export default function Admin(props) {
             ]
         }
     )
-    const [timeData, setTD] = useState(
-        {
-            labels: [],
-            backgroundColor: 'white',
-            datasets: []
-        }
-    )
 
     const defaultData = {
         labels: [],
@@ -165,6 +158,7 @@ export default function Admin(props) {
         datasets: []
     }
 
+    const inputRef = React.createRef()
     const backupRef = React.createRef()
 
     const handleBackup = () => {
@@ -239,6 +233,10 @@ export default function Admin(props) {
             {
                 Header: 'Average Time Taken',
                 accessor: 'time'
+            },
+            {
+                Header: 'Average Duration Taken',
+                accessor: 'duration'
             }
         ],
         []
@@ -268,7 +266,13 @@ export default function Admin(props) {
 
     const handleClick = (e) => {
         if (e.target.className != "clickableCell") {
-            setCF("")
+            if (inputRef.current != null) {
+                if (inputRef.current.value == '') {
+                    setCF("")
+                }
+            } else {
+                setCF("")
+            }
         }
     }
 
@@ -296,37 +300,6 @@ export default function Admin(props) {
                 })
                 console.log(chartRef)
             })
-            axios.get(url + '/instrumentation/codes2').then(async (res) => {
-                let codes = res.data
-                let tempTD = JSON.parse(JSON.stringify(defaultTD))
-                let sres = await axios.get(url + '/instrumentation/splices')
-                let tempLabels = sres.data
-                tempTD.labels = tempLabels
-                for (const key of Object.keys(codes)) {
-                    let res = await axios.get(url + '/instrumentation/code/' + codes[key].code)
-                    console.log(res.data)
-                    let tData = tempLabels.map((splice) => {
-                        let time = null
-                        for (let entry of res.data) {
-                            if (entry.file == splice) {
-                                time = entry.time
-                            }
-                        }
-                        return time
-                    })
-                    console.log('tData:', tData)
-                    let tempDataset = {
-                        label: codes[key].code,
-                        fill: false,
-                        data: tData,
-                        backgroundColor: '#' + Math.floor(Math.random()*16777215).toString(16),
-                        borderColor: '#' + Math.floor(Math.random()*16777215).toString(16)
-                    }
-                    tempTD.datasets.push(tempDataset)
-                }
-                console.log('tempTD:', tempTD)
-                setTD(tempTD)
-            })
         }
         if (active == 'Volunteer Management') {
             axios.get(url + '/instrumentation/codes').then(res => {
@@ -344,6 +317,14 @@ export default function Admin(props) {
             getTracking()
         }
     }, [active])
+
+    useEffect(() => {
+        axios.get(url + '/instrumentation/codes').then(res => {
+            setCI(res.data)
+        }).catch((e) => {
+            console.log(e)
+        })
+    }, [generatedCodes])
 
     const SidebarButton = (label, icon) => {
         return (
@@ -471,13 +452,6 @@ export default function Admin(props) {
                     }}>
                         <p className="SectionLabel">Video processing stats</p>
                         <Line ref={chartRef} data={chartData} options={options} />
-                    </div>,
-                    <div key="dashboard-5" className="ContentSection" style={{
-                        'width': '44%',
-                        'flexDirection': 'column'
-                    }}>
-                        <p className="SectionLabel">Splice annotation stats</p>
-                        <Line ref={chartRef} data={timeData} options={options} />
                     </div>
                 ]
             )
@@ -515,7 +489,7 @@ export default function Admin(props) {
                     <div key="generate-codes3" className="ContentSection" style={{'width': '70%', 'maxHeight': '40%'}}>
                         <div className="SectionLabel" >
                             Volunteer progress monitoring
-                            <input type="text" className="TableFilter" onChange={filterInput} />
+                            <input type="text" ref={inputRef} className="TableFilter" onChange={filterInput} />
                         </div>
                         <div className="SectionContent">
                             <Table filter={codeFilter} name="vp" columns={columns2} data={inst.map((record) => {
@@ -523,7 +497,8 @@ export default function Admin(props) {
                                         {
                                             code: record.code,
                                             file: record.file,
-                                            time: parseFloat(record.time).toFixed(3)
+                                            time: parseFloat(record.time).toFixed(3),
+                                            duration: parseFloat(record.duration).toFixed(3)
                                         }
                                     )
                                 })} />

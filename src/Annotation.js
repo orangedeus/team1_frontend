@@ -7,12 +7,28 @@ import Select from 'react-select';
 import { useSpring, animated, config } from 'react-spring';
 
 import FormField from './FormField';
+import Survey from './Survey';
 
 
 
-const ConditionalReactPlayer = (props) => {
+const ConditionalReactPlayer = forwardRef((props, ref) => {
 
-    useEffect(() => { console.log(props.i, props.index, within()) }, [props.index])
+    const playerRef = React.useRef()
+
+    const [played, setPlayed] = useState(0)
+
+    console.log(props.i)
+
+    useImperativeHandle(ref, () => ({
+        getPlayed: () => {
+            if (played == 0) {
+                return 0
+            } else {
+                return (Date.now() - played) / 1000
+            }
+        },
+        getCurrentTime: playerRef.current ? playerRef.current.getCurrentTime : () => { return 0 }
+    }))
 
     const within = () => {
         if ((props.i < props.index + 2) && (props.i > props.index - 2)) {
@@ -22,12 +38,18 @@ const ConditionalReactPlayer = (props) => {
         }
     }
 
+    const handlePlay = () => {
+        if (played == 0) {
+            setPlayed(Date.now())
+        }
+    }
+
     return (
         <div key={`video-container-${props.i}`} className="VideoContainer">
-            {within() ? <ReactPlayer ref={props.ref} id={`video-player-${props.i}`} key={`video-player-${props.i}`} playing={false} url={props.url} stopOnUnmount={true} width={640} height={360} controls={true}/> : ""}
+            {within() ? <ReactPlayer ref={playerRef} id={`video-player-${props.i}`} key={`video-player-${props.i}`} playing={false} url={props.url} onPlay={handlePlay} stopOnUnmount={true} width={640} height={360} controls={true}/> : ""}
         </div>
     )
-}
+})
 
 export default function Annotation(props) {
     const ERRORMSGS = [
@@ -45,18 +67,20 @@ export default function Annotation(props) {
 
     const [videos, setVideos] = useState([])
     const [index, setIndex] = useState(0)
-    let [rendered, setRendered] = useState([])
+    const [rendered, setRendered] = useState([])
     const [selected, setSelected] = useState({})
     const [validForm, setVF] = useState(true)
     const [playerRefs, setPR] = useState([])
-
+    const [currPlay, setCP] = useState(0)
+    const [surveyed, setSurveyed] = useState(props.auth.surveyed)
+    const [errorMsg, setErrorMsg] = useState('')
 
     const prevIndexRef = useRef()
     const maxIndexRef = useRef(0)
 
     useEffect(() => {
 
-        //handleIndexMove()
+        console.log(index, playerRefs[index])
 
         prevIndexRef.current = index
         maxIndexRef.current = Math.max(maxIndexRef.current, index)
@@ -83,6 +107,12 @@ export default function Annotation(props) {
         }
     }, [playerRefs])
 
+    // useEffect(() => {
+    //     if (errorMsg != '') {
+    //         setVF(false)
+    //     }
+    // }, [errorMsg])
+
     useEffect(() => {
         if (!validForm) {
             setTimeout(() => {
@@ -100,18 +130,32 @@ export default function Annotation(props) {
     })
 
     useEffect(() => {
-        axios.get(url + '/stops').then(res => {
-            setVideos(res.data.map((stop, i) => {
-                return ({url: stop.url})
-            }))
-        })
+        let storedUrls = localStorage.getItem('urls')
+        if (storedUrls == null) {
+            if (props.auth.code == 'Cs198ndsg!') {
+                axios.get(url + '/stops').then(res => {
+                    let tempUrl = res.data.map((stop, i) => {
+                        return ({url: stop.url})
+                    })
+                    setVideos(tempUrl)
+                    localStorage.setItem('urls', JSON.stringify(tempUrl))
+                })
+            } else {
+                axios.get(url + '/stops/reduced').then(res => {
+                    let tempUrl = res.data.map((stop, i) => {
+                        return ({url: stop.url})
+                    })
+                    setVideos(tempUrl)
+                    localStorage.setItem('urls', JSON.stringify(tempUrl))
+                })
+            }
+        } else {
+            setVideos(JSON.parse(storedUrls))
+        }
     }, [])
 
     const addToRenderedCondition = (i) => {
         if (videos.length == 0) { /* If there is no data, render nothing */
-            return
-        }
-        if (playerRefs[i - 1].current != null) {
             return
         }
         /* if (added[i]) {
@@ -133,79 +177,70 @@ export default function Annotation(props) {
         }) */
     }
 
-    const handleIndexMove = () => {
-        if (rendered.length == 0) {
-            return
+    const changeIndex = (newIndex) => {
+        if (index > 0 && newIndex == index - 1) {
+            setIndex(curr => {return (curr - 1)})
         }
-        if (index - 1 > 0) {
-            showVideoPlayer(index - 1)
+        if (index < videos.length - 1 && newIndex == index + 1) {
+            axios.get(`${url}/stops/check/${props.auth.code}&${videos[index].url}`).then(res => {
+                if (res.data.status) {
+                    setIndex(curr => {return (curr + 1)})
+                } else {
+                    setErrorMsg('Kailangan muna ito sagutan.')
+                    setTimeout(() => { setVF(false) }, 200)
+                }
+            }).catch(e => {
+                console.log(e)
+            })
         }
-        if (index + 1 > 0 && index + 1 < rendered.length) {
-            showVideoPlayer(index + 1)
-        }
-        if (index - 2 > 0) {
-            hideVideoPlayer(index - 2)
-        }
-        if (index + 2 > 0 && index + 2 < rendered.length) {
-            hideVideoPlayer(index + 2)
-        }
-    }
-
-    const hideVideoPlayer = (i) => {
-        let playerContainer = document.getElementById(`video-player-${i}`);
-        playerContainer.style.display = "none"
-    }
-
-    const showVideoPlayer = (i) => {
-        let playerContainer = document.getElementById(`video-player-${i}`);
-        playerContainer.style.display = ""
+        formReset()
+        setCP(0)
     }
 
     const handleVideoScroll = (e) => {
         if (e.deltaY < 0) {
-            if (index > 0) {
-                setIndex(curr => {return (curr - 1)})
-                formReset()
-            }
+            changeIndex(index - 1)
         } else {
-            if (index < videos.length - 1) {
-                setIndex(curr => {return (curr + 1)})
-                formReset()
-            }
+            changeIndex(index + 1)
         }
     }
 
     const handlePrev = () => {
-        if (index > 0) {
-            setIndex(curr => {return (curr - 1)})
-            formReset()
-        }
+        changeIndex(index - 1)
     }
 
     const handleNext = () => {
-        if (index < videos.length - 1) {
-            setIndex(curr => {return (curr + 1)})
-            formReset()
-        }
+        changeIndex(index + 1)
     }
-
-    
 
     const validateForm = () => {
         let fieldValid = (annotatedRef.current.input != null && boardingRef.current.input != null && alightingRef.current.input != null && annotatedRef.current.valid && boardingRef.current.valid && alightingRef.current.valid)
-        console.log('1', (selectRef.current != null && selectRef.current.state.value != ""))
-        console.log('current', selectRef.current, 'value', selectRef.current.state.value)
         let selectValid = (selectRef.current != null && selectRef.current.state.value != "" && selectRef.current.state.value != null)
         
         
         let bool = (fieldValid && selectValid)
-        setVF(bool)
+        setErrorMsg('May mali sa mga ibinigay.')
+        setTimeout(() => { setVF(bool) }, 200)
         if (bool) {
             handleAnnotate().then((res) => {
                 if (index < videos.length - 1) setIndex(index + 1)
-                console.log(res)
             })
         }
+    }
+
+    const handleTimeData = () => {
+        console.log(playerRefs)
+        let annotateDur = playerRefs[index].current.getPlayed()
+        let timePlayed = playerRefs[index].current.getCurrentTime()
+        console.log('Time played:', timePlayed, 'Annotation duration:', annotateDur)
+        let req = {
+            code: props.auth.code,
+            file: videos[index].url,
+            time: timePlayed,
+            duration: annotateDur
+        }
+
+        axios.post(url + '/instrumentation', req).catch(e => console.log(e))
     }
 
     const handleAnnotate = async () => {
@@ -214,13 +249,15 @@ export default function Annotation(props) {
         let alighting = alightingRef.current.input
         let following = selected.value
 
+        handleTimeData()
+
         let res = await axios.post(url + '/stops/annotate', {
             annotated: annotated,
             boarding: boarding,
             alighting: alighting,
             following: following,
             url: videos[index].url,
-            code: props.code
+            code: props.auth.code
         })
         return res
     }
@@ -232,7 +269,6 @@ export default function Annotation(props) {
     const validateField = (input) => {
         let tempValid = true
         let tempEM = ''
-        console.log('input', input)
         if (!isPositiveInteger(input)) {
             tempValid = false
             tempEM = ERRORMSGS[0]
@@ -249,6 +285,10 @@ export default function Annotation(props) {
     }
 
     const formReset = () => {
+        if (!annotatedRef.current && !alightingRef.current && !boardingRef.current) {
+            return
+        }
+
         annotatedRef.current.reset()
         boardingRef.current.reset()
         alightingRef.current.reset()
@@ -261,13 +301,13 @@ export default function Annotation(props) {
 
     return(
         <div className="Annotation">
-            <animated.div className="AnnotationVideosContainer" scrollTop={scroll} onScroll={(e) => e.preventDefault()} onTouchMove={(e) => console.log('touching')} onWheel={handleVideoScroll}>
+            {surveyed ? <><animated.div className="AnnotationVideosContainer" scrollTop={scroll}>
                 {rendered}
             </animated.div>
             <div className="AnnotationFormContainer">
                 <div className="CustomScrollBar">
                     <span className="up" onClick={handlePrev}/>
-                    <span className="down"onClick={handleNext}/>
+                    <span className="down" onClick={handleNext}/>
                 </div>
                 <div className="FormContainer">
                     <h1>{`${videos.length != 0 ? index + 1 : 0} / ${videos.length}`}</h1>
@@ -275,7 +315,7 @@ export default function Annotation(props) {
                         <div className="ErrorBox" >
                             <div className="ErrorIcon">!</div>
                             <div className="ErrorMessage">
-                                May mali sa mga ibinigay.
+                                {errorMsg}
                             </div>
                         </div>
                     </Fade>
@@ -287,7 +327,7 @@ export default function Annotation(props) {
                         <button type="button" onClick={validateForm} className="btn2">ANNOTATE</button>
                     </form>
                 </div>
-            </div>
+            </div></> : <Survey code={props.auth.code} />}
         </div>
     )
 }
