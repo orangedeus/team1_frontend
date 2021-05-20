@@ -9,6 +9,7 @@ import Upload from './Upload';
 import Checkpoint from './Checkpoint';
 import FormField from './FormField';
 import ErrorModal from './ErrorModal';
+import CSV from './CSV';
 
 import dashboard from './assets/dashboard.svg';
 import up from './assets/uploadprocess.svg';
@@ -21,6 +22,7 @@ import vid from './assets/uploaded.svg';
 import codes from './assets/code.svg';
 import refresh from './assets/reload.svg';
 import nuke from './assets/nuke.svg';
+import download from './assets/download.svg';
 
 import { forwardRef, useImperativeHandle } from 'react';
 
@@ -110,6 +112,7 @@ export default function Admin(props) {
     const [codeFilter, setCF] = useState("")
     const [confirm, setConfirm] = useState(false)
     const [tracking, setTracking] = useState([])
+    const [CSVSource, setCSVSource] = useState('')
     const [chartData, setCD] = useState(
         {
             labels: [],
@@ -562,6 +565,22 @@ export default function Admin(props) {
                 ]
             )
         }
+        if (active == "View & Download Data") {
+            return (
+                [
+                    <div key="csv" className="ContentSection2" style={{width: '100%', 'maxWidth': '1200px', height: '100%', 'overflowX': 'scroll'}}>
+                        <p className="SectionLabel" >CSV Data</p>
+                        <div className="CSVControl">
+                            <button className="btn3" onClick={handleCSV}>Survey</button>
+                            <button className="btn3" onClick={handleCSV}>Annotations</button>
+                            <button className="btn3" onClick={handleCSV}>Videos</button>
+                            <button className="btn3" onClick={handleCSV}>Stops</button>
+                        </div>
+                        {CSVSource == '' ? null : <CSV source={`http://18.136.217.164:3001/data/${CSVSource}`} />}
+                    </div>
+                ]
+            )
+        }
     }
 
     const handleLesserNuke = () => {
@@ -578,6 +597,15 @@ export default function Admin(props) {
         }).catch(e => {
             console.log(e)
         })
+    }
+
+    const handleCSV = (e) => {
+        let clicked = e.target.innerHTML.toLowerCase()
+        if (clicked == CSVSource) {
+            setCSVSource('')
+        } else {
+            setCSVSource(clicked)
+        }
     }
 
     const isPositiveInteger = (str) => {
@@ -620,6 +648,7 @@ export default function Admin(props) {
                     {SidebarButton("Dashboard", dashboard)}
                     {SidebarButton("Volunteer Management", volunteer)}
                     {SidebarButton("Upload & Process", up)}
+                    {SidebarButton("View & Download Data", download)}
                     {SidebarButton("System Control", control)}
                 </div>
             </Slide>
