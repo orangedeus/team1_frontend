@@ -60,12 +60,6 @@ const SingleFileUpload = forwardRef((props, ref) => {
     const selectRef = React.createRef()
 
     useEffect(() => {
-        if (status == 'uploading') {
-            upload()
-        }
-    }, [status])
-
-    useEffect(() => {
         if (status == 'noRoute') {
             if (route != '') {
                 setStatus('ready')
@@ -81,6 +75,7 @@ const SingleFileUpload = forwardRef((props, ref) => {
             setChecked(bool)
         },
         upload: () => {
+            upload()
             setStatus("uploading")
         },
         process: () => {
