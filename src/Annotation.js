@@ -8,14 +8,39 @@ import { useSpring, animated, config } from 'react-spring';
 
 import FormField from './FormField';
 import Survey from './Survey';
+import celebrate from './assets/celebrate.svg';
 
+function getWindowDimensions() {
+    const { innerWidth: width, innerHeight: height } = window;
+    return {
+        width,
+        height
+    };
+}
+  
+function useWindowDimensions() {
+    const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
 
+    useEffect(() => {
+        function handleResize() {
+        setWindowDimensions(getWindowDimensions());
+        }
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return windowDimensions;
+}
 
 const ConditionalReactPlayer = forwardRef((props, ref) => {
+
+    const { height, width } = useWindowDimensions()
 
     const playerRef = React.useRef()
 
     const [played, setPlayed] = useState(0)
+
 
     console.log(props.i)
 
@@ -45,8 +70,8 @@ const ConditionalReactPlayer = forwardRef((props, ref) => {
     }
 
     return (
-        <div key={`video-container-${props.i}`} className="VideoContainer">
-            {within() ? <ReactPlayer ref={playerRef} id={`video-player-${props.i}`} key={`video-player-${props.i}`} playing={false} url={props.url} onPlay={handlePlay} stopOnUnmount={true} width={640} height={360} controls={true}/> : ""}
+        <div key={`video-container-${props.i} $`} className="VideoContainer">
+            {within() ? <ReactPlayer ref={playerRef} id={`video-player-${props.i}`} key={`video-player-${props.i}`} playing={false} url={props.url} onPlay={handlePlay} stopOnUnmount={true} width={width <= 1360 || height <= 600 ? 640 : 800} height={width <= 1360 || height <= 600 ? 360 : 450} controls={true}/> : ""}
         </div>
     )
 })
@@ -57,6 +82,7 @@ export default function Annotation(props) {
         'Di tumatanggap nang mas mababa sa zero'
     ]
 
+    const { height, width } = useWindowDimensions()
 
     const url = "http://18.136.217.164:3001"
 
@@ -74,6 +100,7 @@ export default function Annotation(props) {
     const [currPlay, setCP] = useState(0)
     const [surveyed, setSurveyed] = useState(props.auth.surveyed)
     const [errorMsg, setErrorMsg] = useState('')
+    const [finished, setFinished] = useState(false)
 
     const prevIndexRef = useRef()
     const maxIndexRef = useRef(0)
@@ -125,8 +152,8 @@ export default function Annotation(props) {
     const maxIndex = maxIndexRef.current
 
     const { scroll } = useSpring({
-        scroll: index * 600,
-        from: { scroll: ((prevIndex ? prevIndex : 0) * 600)},
+        scroll: index * (height - 150),
+        from: { scroll: ((prevIndex ? prevIndex : 0) * (height - 150))},
     })
 
     useEffect(() => {
@@ -154,8 +181,25 @@ export default function Annotation(props) {
         }
     }, [])
 
+    useEffect(() => {
+        if (finished == true) {
+            if (rendered.length == videos.length) {
+                addFinishToRendered()
+            } else {
+                setIndex(index + 1)
+            }
+            
+        }
+    }, [finished])
+
+    useEffect(() => {
+        if (finished == true) {
+            setIndex(index + 1)
+        }
+    }, [rendered])
+
     const addToRenderedCondition = (i) => {
-        if (videos.length == 0) { /* If there is no data, render nothing */
+        if (videos.length == 0 || i > videos.length) { /* If there is no data, render nothing */
             return
         }
         /* if (added[i]) {
@@ -178,13 +222,16 @@ export default function Annotation(props) {
     }
 
     const changeIndex = (newIndex) => {
-        if (index > 0 && newIndex == index - 1) {
-            setIndex(curr => {return (curr - 1)})
+        if (newIndex < 0 || newIndex > videos.length - 1) {
+            return
         }
-        if (index < videos.length - 1 && newIndex == index + 1) {
+        if (finished && newIndex < index) {
+            setFinished(false)
+        }
+        if (index < newIndex) {
             axios.get(`${url}/stops/check/${props.auth.code}&${videos[index].url}`).then(res => {
                 if (res.data.status) {
-                    setIndex(curr => {return (curr + 1)})
+                    setIndex(newIndex)
                 } else {
                     setErrorMsg('Kailangan muna ito sagutan.')
                     setTimeout(() => { setVF(false) }, 200)
@@ -192,6 +239,8 @@ export default function Annotation(props) {
             }).catch(e => {
                 console.log(e)
             })
+        } else {
+            setIndex(newIndex)
         }
         formReset()
         setCP(0)
@@ -223,9 +272,39 @@ export default function Annotation(props) {
         setTimeout(() => { setVF(bool) }, 200)
         if (bool) {
             handleAnnotate().then((res) => {
-                if (index < videos.length - 1) setIndex(index + 1)
+                if (index < videos.length - 1)  {
+                    setIndex(index + 1)
+                } else {
+                    setFinished(true)
+                }
             })
         }
+    }
+
+    const addFinishToRendered = () => {
+        console.log('Finished!')
+        const Finish = (
+            <div className="VideoContainer">
+                <div className="Finish">
+                    <div className="FinishText">
+                        <div className="FinishLabel">Done!</div>
+                        <div className="FinishMsg">
+                            Thank you for participating and annotating our videos. Click the button below to go back to the start.
+                            <button className="btn2" onClick={() => {changeIndex(0)}}>Go back</button>
+                        </div>
+                    </div>
+                    <div className="FinishImg">
+                        <img style={{'height': '35rem'}} src={celebrate} alt="celebrate" />
+                    </div>
+                </div>
+            </div>
+        )
+
+        setRendered((curr) => {
+            let tempRendered = [...curr]
+            tempRendered.push(Finish)
+            return tempRendered
+        })
     }
 
     const handleTimeData = () => {
@@ -301,7 +380,7 @@ export default function Annotation(props) {
 
     return(
         <div className="Annotation">
-            {surveyed ? <><animated.div className="AnnotationVideosContainer" scrollTop={scroll}>
+            {surveyed ? <><animated.div className="AnnotationVideosContainer" onWheel={handleVideoScroll} scrollTop={scroll}>
                 {rendered}
             </animated.div>
             <div className="AnnotationFormContainer">
@@ -310,7 +389,7 @@ export default function Annotation(props) {
                     <span className="down" onClick={handleNext}/>
                 </div>
                 <div className="FormContainer">
-                    <h1>{`${videos.length != 0 ? index + 1 : 0} / ${videos.length}`}</h1>
+                    <h1>{`${videos.length != 0 ? index < videos.length ? index + 1 : index : 0} / ${videos.length}`}</h1>
                     <Fade left collapse opposite when={!validForm}>
                         <div className="ErrorBox" >
                             <div className="ErrorIcon">!</div>
@@ -324,7 +403,7 @@ export default function Annotation(props) {
                         <FormField ref={annotatedRef} validateField={validateField} className="FormField" fieldName="annotated" labelName="Bilang ng tao sa dulo ng bidyo" type="text" />
                         <FormField ref={boardingRef} validateField={validateField} className="FormField" fieldName="boarding" labelName="Sumakay" type="text" />
                         <FormField ref={alightingRef} validateField={validateField} className="FormField" fieldName="alighting" labelName="Bumaba" type="text" />
-                        <button type="button" onClick={validateForm} className="btn2">ANNOTATE</button>
+                        <button type="button" onClick={validateForm} className="btn2" disabled={finished}>ANNOTATE</button>
                     </form>
                 </div>
             </div></> : <Survey code={props.auth.code} />}

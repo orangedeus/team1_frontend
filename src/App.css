@@ -3,6 +3,7 @@ html, body {
   width:100%;
 }
 
+
 @font-face {
   font-family: 'Cubao Free Regular';
   src: local("Cubao Free Regular"), url('./assets/Cubao_Free_Regular.otf') format('opentype');
@@ -174,12 +175,19 @@ html, body {
   cursor: pointer;
 }
 
+.btn2:disabled {
+  background-color: rgb(238, 238, 238);
+  color: gray;
+  border: solid 2px rgb(171, 171, 171);
+  cursor: default;
+}
+
 .btn2-error {
   background-color: red;
   color: white;
 }
 
-.btn2:hover {
+.btn2:hover:enabled {
   font-weight: bold;
   -webkit-box-shadow: 1px 1px 2px 0px rgb(201, 201, 247);
   -moz-box-shadow: 1px 1px 2px 0px rgb(201, 201, 247);
@@ -260,9 +268,8 @@ html, body {
 .AnnotationVideosContainer {
   position: relative;
   display: grid;
-  width: 50%;
-  height: calc(100vh - 150px);
-  max-height: 600px;
+  width: 60%;
+  max-height: calc(100vh - 150px);
   transition: 0.25s ease-in;
   overflow-y: scroll;
   scrollbar-width: none;
@@ -276,7 +283,7 @@ html, body {
 }
 
 .VideoContainer {
-  min-height: 600px;
+  height: calc(100vh - 150px);
   width: 100%;
   display: flex;
   justify-content: center;
@@ -292,14 +299,14 @@ html, body {
 }
 
 .AnnotationFormContainer {
-  width: 50%;
+  width: 40%;
   display: flex;
   flex-direction: row;
 }
 
 .FormContainer {
   display: flex;
-  width: 97%;
+  width: 96%;
   flex-direction: column;
   align-items: center;
 }
@@ -307,7 +314,7 @@ html, body {
 .AnnotationForm {
   display: flex;
   flex-direction: column;
-  width: 40%;
+  width: 60%;
   height: 100%;
   margin: 1rem;
 }
@@ -323,7 +330,7 @@ html, body {
 
 .FormSelect {
   width: 100%;
-  font-size: 15px;
+  font-size: 1rem;
 }
 
 .FormInputBox {
@@ -342,9 +349,8 @@ html, body {
 }
 
 .CustomScrollBar {
-  width: 3%;
-  height: calc(100vh - 150px);
-  max-height: 600px;
+  width: 4%;
+  max-height: calc(100vh - 150px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -355,8 +361,8 @@ html, body {
 }
 
 .up {
-  width: 20px;
-  height: 20px;
+  width: 3vmin;
+  height: 3vmin;
   background-image: url('./assets/arrow.png');
   background-position: bottom;
   background-size: contain;
@@ -364,8 +370,8 @@ html, body {
 }
 
 .down {
-  width: 20px;
-  height: 20px;
+  width: 3vmin;
+  height: 3vmin;
   background-image: url('./assets/arrow.png');
   background-position: bottom;
   background-size: contain;
@@ -997,7 +1003,7 @@ html, body {
 }
 
 .AboutHeaderText {
-  font-size: 1.5rem;
+  font-size: 3.2vmin;
   font-family: 'IBM Plex Sans', sans-serif;
   text-align: left;
   font-weight: bold;
@@ -1021,15 +1027,15 @@ html, body {
 }
 
 .WriteUpText {
-  width: 40%;
+  width: 35%;
   text-align: left;
   margin: 1rem;
-  font-size: 20px;
+  font-size: 2.5vmin;
   font-family: 'Noto Sans JP', sans-serif;
 }
 
 .wrap-text {
-  font-size: 20px;
+  font-size: inherit;
   cursor: pointer;
 }
 
@@ -1185,4 +1191,51 @@ html, body {
 
 .Spreadsheet {
   width: auto;
+}
+
+.LegendControl {
+  padding: 0.5rem;
+  width: 300px;
+  background-color: white;
+  margin: 1rem;
+
+  cursor: pointer;
+
+  border-radius: 15px;
+
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.Finish {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: white;
+}
+.FinishText {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.FinishLabel {
+  font-size: 130px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-weight: bold;
+}
+
+.FinishMsg {
+  font-size: 20px;
+  color: gray;
+}
+
+.CelebrateImg {
+  height: 35rem;
 }

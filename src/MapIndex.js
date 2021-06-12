@@ -1,11 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MapContainer, MapConsumer, Marker, Circle, ImageOverlay, CircleMarker, Popup, TileLayer } from 'react-leaflet';
+import { MapContainer, MapConsumer, Pane, LayersControl, withLeaflet, Marker, Circle, ImageOverlay, CircleMarker, Popup, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
 import L from 'leaflet';
 import haversine from 'haversine';
 import ReactPlayer from 'react-player';
 import x from './assets/x.png';
+
+const POSITION_CLASSES = {
+    bottomleft: 'leaflet-bottom leaflet-left',
+    bottomright: 'leaflet-bottom leaflet-right',
+    topleft: 'leaflet-top leaflet-left',
+    topright: 'leaflet-top leaflet-right',
+}
 
 const clean = (stops, parameter) => {
 
@@ -60,6 +67,16 @@ export default function MapIndex(props) {
 
     const url = "http://18.136.217.164:3001"
 
+    const [filter, setFilter] = useState(
+        {
+            people: true,
+            annotated: false,
+            boarding: false,
+            alighting: false,
+            following: false
+        }
+    )
+
     const mapRef = React.createRef()
 
     const prevPropsRef = useRef()
@@ -72,12 +89,12 @@ export default function MapIndex(props) {
 
     const displayMapMarkers = () => {
         let markerRender = []
-        for (const key of Object.keys(props.filter)) {
+        for (const key of Object.keys(filter)) {
             let stops = props.stops
             if (stops.length == 0) {
                 break
             }
-            if (props.filter[key]) {
+            if (filter[key]) {
                 if (key != 'following') {
                     stops = clean(stops, key)
                     let color
@@ -127,6 +144,15 @@ export default function MapIndex(props) {
         return markerRender
     }
 
+    const handleFilter = (e) => {
+        let checkedBox = e.target
+        setFilter(curr => {
+            let tempFilter = JSON.parse(JSON.stringify(curr))
+            tempFilter[checkedBox.value] = checkedBox.checked
+            return (tempFilter)
+        })
+    }
+
     return(
         <MapContainer className="MapContainer" ref={mapRef} center={props.stops.length == 0 ? [11.803, 122.563] : [props.stops[0].location.x, props.stops[0].location.y]} zoom={5}>
             {<MapConsumer>
@@ -148,6 +174,31 @@ export default function MapIndex(props) {
             </MapConsumer>}
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             {displayMapMarkers()}
+            <div className={`${POSITION_CLASSES.topright}`}>
+                <div className="leaflet-control leaflet-bar LegendControl">
+                    <strong>Legend & Control</strong><br />
+                    <div>
+                        <input type="checkbox" id="people" name="people" value="people" onChange={handleFilter} checked={filter.people} />
+                        <label htmlFor="people"><span className="dot" style={{backgroundColor: '#1A05F3'}}/>Total Passengers (Automated)</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="annotated" name="annotated" value="annotated" onChange={handleFilter} checked={filter.annotated} />
+                        <label htmlFor="annotated"><span className="dot" style={{backgroundColor: '#4DC274'}}/>Total Passengers (Manual)</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="boarding" name="boarding" value="boarding" onChange={handleFilter} checked={filter.boarding} />
+                        <label htmlFor="boarding"><span className="dot" style={{backgroundColor: '#F7F603'}}/>Boarding (Manual)</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="alighting" name="alighting" value="alighting" onChange={handleFilter} checked={filter.alighting} />
+                        <label htmlFor="alighting"><span className="dot" style={{backgroundColor: '#E20000'}}/>Alighting (Manual)</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="following" name="following" value="following" onChange={handleFilter} checked={filter.following} />
+                        <label htmlFor="following">&#10060; COVID Regulations Violations (Manual)</label>
+                    </div>
+                </div>
+            </div>
         </MapContainer>
     )
 }
