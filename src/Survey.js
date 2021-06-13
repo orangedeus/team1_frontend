@@ -10,6 +10,8 @@ export default function Survey(props) {
     const url = "http://18.136.217.164:3001"
     
     const [survey, setSurvey] = useState(false)
+    const [instruct, setInst] = useState(false)
+
     const [sex, setSex] = useState('')
     const [educ, setEduc] = useState('')
 
@@ -75,15 +77,41 @@ export default function Survey(props) {
             sex: sex.value,
             educ: educ.value
         }
-        axios.post(url + '/survey/submit', req).then(
-            setTimeout(() => { window.location.reload() }, 1000 )
-        ).catch(e => {
+        axios.post(url + '/survey/submit', req).then(() => {
+            setInst(true)
+            setSurvey(false)
+        }).catch(e => {
             console.log(e)
         })
     }
 
     return (
         <div className="Survey">
+            {instruct ? 
+            <Fade>
+                <div className="SurveyWelcome">
+                    <div className="FinishLabel">
+                        How To
+                    </div>
+                    <div className="SWelcomeText">
+                        <ul>
+                            <li>
+                                In annotating the number of people, we count the number of people at the end of the video.
+                            </li>
+                            <li>
+                                For boarding and alighting, even people only caught in the act of doing so are still counted.
+                            </li>
+                            <li>
+                                Not following COVID guidelines include: not wearing a facemask or faceshield and not practicing social distancing.
+                            </li>
+                        </ul>
+                        <button className="GetStarted" onClick={() => {window.location.reload()}}>
+                            CONTINUE
+                        </button>
+                    </div>
+                </div>
+            </Fade>
+            :
             <div className="SurveyWelcome">
                 <h1 className="SWelcomeHeader">
                     Hi!
@@ -96,7 +124,7 @@ export default function Survey(props) {
                         GET STARTED
                     </button>
                 </Fade>
-            </div>
+            </div>}
             <div className="SurveyFormContainer">
                 <Fade right when={survey}>
                     <div className="ContentSection" style={{width: '80%', height: '70%'}}>

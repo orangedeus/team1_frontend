@@ -6,6 +6,7 @@ import L from 'leaflet';
 import haversine from 'haversine';
 import ReactPlayer from 'react-player';
 import x from './assets/x.png';
+import axios from 'axios';
 
 const POSITION_CLASSES = {
     bottomleft: 'leaflet-bottom leaflet-left',
@@ -77,6 +78,8 @@ export default function MapIndex(props) {
         }
     )
 
+    const [markers, setMarkers] = useState([])
+
     const mapRef = React.createRef()
 
     const prevPropsRef = useRef()
@@ -85,7 +88,63 @@ export default function MapIndex(props) {
         prevPropsRef.current = props
     })
 
+    useEffect(() => {
+        updateMarkers()
+    }, [filter, props.route])
+
     const prevProps = prevPropsRef.current
+
+    const updateMarkers = () => {
+        let req = {
+            filter: filter,
+            route: props.route
+        }
+        axios.post(url + '/stops/filtered', req).then(res => {
+            let data = res.data
+            console.log(data)
+            let tempMarkers = []
+            for (let i = 0; i < data.filtered.length; i++) {
+                let color, coord, display
+                switch (data.filtered[i].parameter) {
+                    case 'annotated':
+                        color = '#4DC274'
+                        break
+                    case 'boarding':
+                        color = '#F7F603'
+                        break
+                    case 'alighting':
+                        color = '#E20000'
+                        break
+                    default:
+                        color = '#1A05F3'
+                        break
+                }
+                coord = [data.filtered[i].location.x, data.filtered[i].location.y]
+                display = data.filtered[i].number
+                tempMarkers.push(
+                    <Circle key={data.filtered[i].parameter + i} center={coord} color={color} radius={Math.ceil(display) * 15}>
+                        <Popup>
+                            {display}
+                        </Popup>
+                    </Circle>
+                )
+            }
+            let ctr = 0
+            for (let i of data.following) {
+                let coord = [i.location.x, i.location.y]
+                tempMarkers.push(
+                    //<Marker key={key + i} position={coord} icon={xIcon} />
+                    <ImageOverlay key={`following-${ctr}`}url={x} bounds={[[coord[0] - .0004, coord[1] - .0004], [coord[0] + .0004, coord[1] + .0004]]} interactive={true}>
+                        <Popup className='popup'>
+                            <ReactPlayer className='video' playing={true} url={url + '/videos/' + i.url} stopOnUnmount={true} width={640} height={360} controls={true}/>
+                        </Popup>
+                    </ImageOverlay>
+                )
+                ctr += 1
+            }
+            setMarkers(tempMarkers)
+        })
+    }
 
     const displayMapMarkers = () => {
         let markerRender = []
@@ -119,7 +178,11 @@ export default function MapIndex(props) {
                         let coord = [stops[i].location.x, stops[i].location.y]
                         let display = stops[i][key]
                         markerRender.push(
-                            <Circle key={key + i} center={coord} color={color} radius={Math.ceil(display) * 15} />
+                            <Circle key={key + i} center={coord} color={color} radius={Math.ceil(display) * 15}>
+                                <Popup>
+                                    {display}
+                                </Popup>
+                            </Circle>
                         )
                     }
                 } else {
@@ -173,7 +236,7 @@ export default function MapIndex(props) {
                 }}
             </MapConsumer>}
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            {displayMapMarkers()}
+            {markers}
             <div className={`${POSITION_CLASSES.topright}`}>
                 <div className="leaflet-control leaflet-bar LegendControl">
                     <strong>Legend & Control</strong><br />

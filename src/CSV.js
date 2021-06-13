@@ -76,7 +76,6 @@ export default function CSV(props) {
     return (
         <div className="CSV">
             <CSVLink filename={`${props.source.split('/').pop()}.csv`} className="CSVDownload btn2" data={downloadData}>Download</CSVLink>
-            <Spreadsheet className="CSVDisplay" data={displayData} />
         </div>
     )
 }

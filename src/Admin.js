@@ -36,15 +36,8 @@ const Table = forwardRef((props, ref) => {
         getTableBodyProps,
         headerGroups,
         rows,
-        prepareRow,
-        setFilter
-    } = useTable({ columns, data }, useFilters)
-
-    useEffect(() => {
-        if (props.filter) {
-            setFilter("code", props.filter)
-        }
-    }, [props.filter])
+        prepareRow
+    } = useTable({ columns, data })
 
     return (
         <table {...getTableProps()} style={{
@@ -80,8 +73,7 @@ const Table = forwardRef((props, ref) => {
                         <tr className="TRow" {...row.getRowProps()}>
                             {row.cells.map(cell => {
                                 return (
-                                    <td onClick={props.cellClick}
-                                        {...cell.getCellProps()}
+                                    <td {...cell.getCellProps()}
                                         className={props.name == "vc" && cell.column.id == "code" ? "clickableCell" : ""}
                                         style={{
                                             padding: '10px',
@@ -475,10 +467,10 @@ export default function Admin(props) {
                             <Table name="c" columns={columns} data={generatedCodes.length ? generatedCodes.map((code) => {return {code: code}}) : [{code: <span style={{color: 'gray'}}>Nothing to display.</span>}]} />
                         </div>
                     </div>,
-                    <div key="generate-codes2" className="ContentSection" style={{'width': '70%', 'minHeight': '30%', 'maxHeight': '40%'}}>
+                    <div key="generate-codes2" className="ContentSection" style={{'width': '70%', 'minHeight': '30%', 'maxHeight': '90%'}}>
                         <p className="SectionLabel" >Volunteer code monitoring</p>
                         <div className="SectionContent">
-                            <Table name="vc" cellClick={handleCellClick} columns={columns1} data={codesInst.map((record) => {
+                            <Table name="vc" columns={columns1} data={codesInst.map((record) => {
                                 return (
                                     {
                                         code: record.code,
@@ -487,24 +479,6 @@ export default function Admin(props) {
                                     }
                                 )
                             })} />
-                        </div>
-                    </div>,
-                    <div key="generate-codes3" className="ContentSection" style={{'width': '70%', 'maxHeight': '40%'}}>
-                        <div className="SectionLabel" >
-                            Volunteer progress monitoring
-                            <input type="text" ref={inputRef} className="TableFilter" onChange={filterInput} />
-                        </div>
-                        <div className="SectionContent">
-                            <Table filter={codeFilter} name="vp" columns={columns2} data={inst.map((record) => {
-                                    return (
-                                        {
-                                            code: record.code,
-                                            file: record.file,
-                                            time: parseFloat(record.time).toFixed(3),
-                                            duration: parseFloat(record.duration).toFixed(3)
-                                        }
-                                    )
-                                })} />
                         </div>
                     </div>
                 ]

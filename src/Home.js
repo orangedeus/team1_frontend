@@ -20,6 +20,7 @@ export default function Home() {
 
     const handleSelectChange = (e) => {
         console.log('change fired')
+        setRoute(e.label)
         let route = e.label
         if (e.label == 'All') {
             route = ''
@@ -29,10 +30,11 @@ export default function Home() {
             setStops(res.data)
         })
     }
+
     return (
         <div className="Home">
-            <Select className="RouteSelect" options={routes} onMenuOpen={handleSelect} onChange={handleSelectChange} />
-            <MapIndex stops={stops} />
+            <Select className="RouteSelect" options={routes} onMenuOpen={handleSelect} onChange={handleSelectChange} placeholder="Select route..." />
+            <MapIndex stops={stops} route={route} />
         </div>
     )
 }
