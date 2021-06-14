@@ -16,6 +16,7 @@ import About from './About';
 import Annotation from './Annotation';
 import Admin from './Admin';
 import NotFound from './NotFound';
+import Sorting from './Sorting';
 import './App.css';
 
 import submit from './assets/submit.png';
@@ -171,6 +172,9 @@ function App() {
           </Route> : null}
           <Route exact path="/about">
             <About />
+          </Route>
+          <Route exact path="/sorting">
+            <Sorting />
           </Route>
           <Route exact path="/">
             <Home />
