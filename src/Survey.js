@@ -91,12 +91,12 @@ export default function Survey(props) {
             <Fade>
                 <div className="SurveyWelcome">
                     <div className="FinishLabel">
-                        How To
+                        Guidelines
                     </div>
                     <div className="SWelcomeText">
                         <ul>
                             <li>
-                                In annotating the number of people, we count the number of people at the end of the video.
+                                In annotating the number of people, we count the number of people at the end of the video. The driver is included in the count.
                             </li>
                             <li>
                                 For boarding and alighting, even people only caught in the act of doing so are still counted.

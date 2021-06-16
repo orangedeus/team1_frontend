@@ -289,8 +289,8 @@ export default function Annotation(props) {
                     <div className="FinishText">
                         <div className="FinishLabel">Done!</div>
                         <div className="FinishMsg">
-                            Thank you for participating and annotating our videos. Click the button below to go back to the start.
-                            <button className="btn2" onClick={() => {changeIndex(0)}}>Go back</button>
+                            Thank you for participating and annotating our videos. We'd love to get your feedback with a brief survey.
+                            <button className="btn2" onClick={() => {window.open('https://docs.google.com/forms/d/e/1FAIpQLSfn0DAGUTh7bgWzfUbgH7Qr3VeRZ5K0C8F3Ndy3eCR9XtKZrQ/viewform', '_blank')}}>GIVE FEEDBACK</button>
                         </div>
                     </div>
                     <div className="FinishImg">
