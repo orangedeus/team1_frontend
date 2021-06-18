@@ -106,6 +106,10 @@ export default function Annotation(props) {
     const maxIndexRef = useRef(0)
 
     useEffect(() => {
+        let lastIndex = localStorage.getItem('index')
+        if ((lastIndex != '' || lastIndex != null || lastIndex != undefined) && (index != 0)) {
+            localStorage.setItem('index', index)
+        }
 
         console.log(index, playerRefs[index])
 
@@ -157,6 +161,11 @@ export default function Annotation(props) {
     })
 
     useEffect(() => {
+        let lastIndex = localStorage.getItem('index')
+
+        if (lastIndex != '' && lastIndex != null && lastIndex != undefined) {
+            setIndex(parseInt(lastIndex))
+        }
         let storedUrls = localStorage.getItem('urls')
         if (storedUrls == null) {
             if (props.auth.code == 'Cs198ndsg!') {
@@ -179,6 +188,7 @@ export default function Annotation(props) {
         } else {
             setVideos(JSON.parse(storedUrls))
         }
+
     }, [])
 
     useEffect(() => {
