@@ -101,16 +101,19 @@ export default function Annotation(props) {
     const [surveyed, setSurveyed] = useState(props.auth.surveyed)
     const [errorMsg, setErrorMsg] = useState('')
     const [finished, setFinished] = useState(false)
+    const [firstIndexHit, setIH] = useState(true)
 
     const prevIndexRef = useRef()
     const maxIndexRef = useRef(0)
 
     useEffect(() => {
         let lastIndex = localStorage.getItem('index')
-        if ((lastIndex != '' || lastIndex != null || lastIndex != undefined) && (index != 0)) {
+        console.log(firstIndexHit)
+        if (!firstIndexHit) {
+            console.log('got in with index:', index)
             localStorage.setItem('index', index)
         }
-
+        setIH(false)
         console.log(index, playerRefs[index])
 
         prevIndexRef.current = index
@@ -161,11 +164,6 @@ export default function Annotation(props) {
     })
 
     useEffect(() => {
-        let lastIndex = localStorage.getItem('index')
-
-        if (lastIndex != '' && lastIndex != null && lastIndex != undefined) {
-            setIndex(parseInt(lastIndex))
-        }
         let storedUrls = localStorage.getItem('urls')
         if (storedUrls == null) {
             if (props.auth.code == 'Cs198ndsg!') {
@@ -188,7 +186,18 @@ export default function Annotation(props) {
         } else {
             setVideos(JSON.parse(storedUrls))
         }
+        // let lastIndex = localStorage.getItem('index')
 
+        // if (lastIndex != '' && lastIndex != null && lastIndex != undefined) {
+        //     setIndex(parseInt(lastIndex))
+        // }
+        setTimeout(() => {
+            let lastIndex = localStorage.getItem('index')
+
+            if (lastIndex != '' && lastIndex != null && lastIndex != undefined) {
+                setIndex(parseInt(lastIndex))
+            }
+        }, 0)
     }, [])
 
     useEffect(() => {

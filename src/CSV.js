@@ -9,6 +9,7 @@ export default function CSV(props) {
     const [data, setData] = useState([])
     const [downloadData, setDownload] = useState([])
     const [displayData, setDisplay] = useState([])
+    const [available, setA] = useState(false)
     
     useEffect(() => {
         axios.get(props.source).then(res => {
@@ -26,6 +27,10 @@ export default function CSV(props) {
         parseForDisplay()
     }, [data])
 
+    useEffect(() => {
+        setA(true)
+    }, [downloadData])
+
     const parseForDownload = () => {
         let tempData = []
 
@@ -36,7 +41,15 @@ export default function CSV(props) {
         let body = data.map(entry => {
             let newEntry = []
             for (const key of Object.keys(entry)) {
-                newEntry.push(entry[key])
+                if (typeof entry[key] == "boolean") {
+                    if (entry[key]) {
+                        newEntry.push("true")
+                    } else {
+                        newEntry.push("false")
+                    }
+                } else {
+                    newEntry.push(entry[key])
+                }
             }
             return newEntry
         })
@@ -75,7 +88,7 @@ export default function CSV(props) {
 
     return (
         <div className="CSV">
-            <CSVLink filename={`${props.source.split('/').pop()}.csv`} className="CSVDownload btn2" data={downloadData}>Download</CSVLink>
+            <CSVLink filename={`${props.source.split('/').pop()}.csv`} className="CSVDownload btn2" data={downloadData} disable={available}>Download</CSVLink>
         </div>
     )
 }

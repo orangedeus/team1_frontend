@@ -276,6 +276,8 @@ html, body {
   touch-action: none;
   scroll-behavior: smooth;
   overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 .AnnotationVideosContainer::-webkit-scrollbar {
@@ -288,6 +290,8 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
 .AnnotationVideosContainer:hover {
