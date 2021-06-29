@@ -552,6 +552,10 @@ export default function Admin(props) {
                             <button className="btn3" onClick={handleCSV}>Deviation</button>
                             <button className="btn3" onClick={handleCSV}>Distribution</button>
                             <button className="btn3" onClick={handleCSV}>Total</button>
+                            <button className="btn3" onClick={handleCSV}>People</button>
+                            <button className="btn3" onClick={handleCSV}>Annotated</button>
+                            <button className="btn3" onClick={handleCSV}>Boarding</button>
+                            <button className="btn3" onClick={handleCSV}>Alighting</button>
                         </div>
                         {CSVSource == '' ? null : <CSV source={`http://18.136.217.164:3001/data/${CSVSource}`} />}
                     </div>
