@@ -36,10 +36,18 @@ function Dropzone(props) {
     return (
         <div className="Dropzone" {...getRootProps()}>
             <input {...getInputProps()} />
+            <ul>
             {isDragActive ?
-                <p>Drop the files here ...</p> :
-                <p>Drag and drop files here, or click to select files.</p>
+                <li>Drop the files here ...</li> :
+                <li>Drag and drop files here, or click here to select files.</li>
             }
+            <li>Interact with the selected files by <b style={{color: 'black'}}>checking</b> them and clicking the corresponding button.</li>
+            <li>Select a route for the files individually or use the dropdown to select a route for all checked files.</li>
+            <li>We can now proceed to upload the files.</li>
+            <li>We can tag the files for processing after the upload.</li>
+            <li>Ideally, after files have been processed, delete the files to save space.</li>
+            <li>Make sure to click <b style={{color: 'black'}}>Finish</b> when done uploading and processing.</li>
+            </ul>
         </div>
     )
 

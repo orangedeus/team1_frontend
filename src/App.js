@@ -17,6 +17,7 @@ import Annotation from './Annotation';
 import Admin from './Admin';
 import NotFound from './NotFound';
 import Sorting from './Sorting';
+import Footer from './Footer';
 import './App.css';
 
 import submit from './assets/submit.png';
@@ -184,6 +185,7 @@ function App() {
           </Route>
         </Switch>
       </div>
+      {/*<Footer />*/}
     </div>
       
   );

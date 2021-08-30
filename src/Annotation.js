@@ -175,13 +175,24 @@ export default function Annotation(props) {
                     localStorage.setItem('urls', JSON.stringify(tempUrl))
                 })
             } else {
-                axios.get(url + '/stops/reduced').then(res => {
+                // axios.get(url + '/stops/reduced').then(res => {
+                //     let tempUrl = res.data.map((stop, i) => {
+                //         return ({url: stop.url})
+                //     })
+                //     setVideos(tempUrl)
+                //     localStorage.setItem('urls', JSON.stringify(tempUrl))
+                // })
+                console.log('getting videos for ' + props.auth.code)
+                axios.post(url + '/stops/reduced', { code: props.auth.code }).then(res => {
                     let tempUrl = res.data.map((stop, i) => {
                         return ({url: stop.url})
                     })
                     setVideos(tempUrl)
                     localStorage.setItem('urls', JSON.stringify(tempUrl))
+                }).catch(e => {
+                    console.log(e)
                 })
+                console.log('2 getting videos for ' + props.auth.code)
             }
         } else {
             setVideos(JSON.parse(storedUrls))

@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import Fade, { Slide } from 'react-reveal';
+import Select from 'react-select';
 import axios from 'axios';
 import { useFilters, useTable } from 'react-table';
 import { Line } from 'react-chartjs-2';
@@ -104,6 +105,9 @@ export default function Admin(props) {
     const [codeFilter, setCF] = useState("")
     const [confirm, setConfirm] = useState(false)
     const [tracking, setTracking] = useState([])
+    const [route, setRoute] = useState("")
+    const [routes, setRoutes] = useState([])
+    const [currentBatch, setCB] = useState(0)
     const [CSVSource, setCSVSource] = useState('')
     const [chartData, setCD] = useState(
         {
@@ -147,6 +151,7 @@ export default function Admin(props) {
             }
         ]
     }
+
 
     const defaultTD = {
         labels: [],
@@ -311,6 +316,13 @@ export default function Admin(props) {
         if (active == 'Upload & Process') {
             getTracking()
         }
+        if (active == 'System Control') {
+            axios.get(url + '/batch/current').then(res => {
+                setCB(parseInt(res.data.current))
+            }).catch(e => {
+                console.log(e)
+            })
+        }
     }, [active])
 
     useEffect(() => {
@@ -333,6 +345,7 @@ export default function Admin(props) {
     }
 
     const generateRef = React.createRef()
+    const thresholdRef = React.createRef()
 
     const getTracking = () => {
         axios.get(url + '/process/tracking').then(res => {
@@ -350,8 +363,16 @@ export default function Admin(props) {
         if (!generateRef.current.valid) {
             return
         }
+        if (!thresholdRef) {
+            return
+        }
+        if (!thresholdRef.current.valid) {
+            return
+        }
         let req = {
             code: props.code,
+            threshold: thresholdRef.current.input,
+            route: route,
             number: generateRef.current.input
         }
         axios.post(url + '/generate', req)
@@ -386,6 +407,17 @@ export default function Admin(props) {
         }).catch(e => {console.log(e)})
     }
 
+    const handleSelect = (e) => {
+        axios.get(url + '/routes').then((res) => {
+            setRoutes([{value: 0, label: "All"}].concat(res.data))
+        })
+    }
+
+    const handleSelectChange = (e) => {
+        setRoute(e.label)
+        console.log(e.label)
+    }
+
     const handleCellClick = (e) => {
         if (e.target.cellIndex == 0) {
             setCF(e.target.innerHTML)
@@ -394,6 +426,40 @@ export default function Admin(props) {
 
     const filterInput = (e) => {
         setCF(e.target.value)
+    }
+
+    const handleRetire = (e) => {
+        axios.post(url + '/batch/retire', {
+            batch: currentBatch
+        }).then((res) => {
+            console.log(res)
+        }).catch(e => {
+            console.log(e)
+        })
+    }
+
+    const handlePrevBatch = () => {
+        axios.post(url + '/batch/set', {
+            new_batch: currentBatch + -1
+        }).then(() => {
+            setCB((curr) => {
+                return curr + -1
+            })
+        })
+    }
+
+    const handleNextBatch = () => {
+        axios.post(url + '/batch/set', {
+            new_batch: currentBatch + 1
+        }).then(() => {
+            setCB((curr) => {
+                return curr + 1
+            })
+        })
+    }
+
+    const handleDelete = (e) => {
+        console.log('deleting')
     }
 
     const renderActive = () => {
@@ -457,7 +523,9 @@ export default function Admin(props) {
                     <div key="generate-codes" className="ContentSection" style={{'width': '20%'}}>
                         <p className="SectionLabel">Generate codes</p>
                         <form autoComplete="off" className="GenerateForm">
-                            <FormField ref={generateRef} validateField={validateGenerateField} className="GenerateField" fieldName="generated" labelName="Number of codes to be generated" type="text" />
+                            <FormField ref={generateRef} validateField={validateGenerateField} className="GenerateField" fieldName="generated" labelName="Number of codes to be generated" type="number" />
+                            <FormField ref={thresholdRef} validateField={validateGenerateField} className="GenerateField" fieldName="threshold" labelName="Threshold" type="number" />
+                            <Select menuPortalTarget={document.body} styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }} placeholder="Route for codes" key={`select-all`} options={routes} className="RouteSelect2" isSearchable={false} onMenuOpen={handleSelect} onChange={handleSelectChange} />
                             <button className="btn3" type="button" onClick={handleGenerate}>Generate</button>
                         </form>
                     </div>,
@@ -510,7 +578,21 @@ export default function Admin(props) {
         }
         if (active == "System Control") {
             return (
-                [
+                [   
+                    <div key="batch-control" className="ContentSection" style={{'width': '100%'}}>
+                        <p className="SectionLabel">
+                            Current batch
+                        </p>
+                        <div className="BatchControl">
+                            <button className="arrow left" onClick={handlePrevBatch} disabled={currentBatch <= 0} />
+                            <div className="CurrentBatch">{currentBatch}</div>
+                            <button className="arrow right" onClick={handleNextBatch} />
+                        </div>
+                        <div className="BatchControl2">
+                            <button className="btn3" type="button" onClick={handleRetire}>Retire</button>
+                            <button className="btn3" type="button" onClick={handleDelete}>Delete</button>
+                        </div>
+                    </div>,
                     <div key="backup" className="ContentSection" style={{'width': '25%'}}>
                         <p className="SectionLabel" >Backup</p>
                         <form autoComplete="off" className="GenerateForm">
