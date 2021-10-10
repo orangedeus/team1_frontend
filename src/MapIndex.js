@@ -7,6 +7,7 @@ import haversine from 'haversine';
 import ReactPlayer from 'react-player';
 import x from './assets/x.png';
 import axios from 'axios';
+import SliderButton from './SliderButton';
 
 const POSITION_CLASSES = {
     bottomleft: 'leaflet-bottom leaflet-left',
@@ -260,6 +261,8 @@ export default function MapIndex(props) {
                         <input type="checkbox" id="following" name="following" value="following" onChange={handleFilter} checked={filter.following} />
                         <label htmlFor="following">&#10060; COVID Regulations Violations (Manual)</label>
                     </div>
+                    {/* <SliderButton options={4} width={'80%'} height={25} /> */}
+                    <input type="range" min={0} max={3} step={1}/>
                 </div>
             </div>
         </MapContainer>

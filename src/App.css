@@ -93,7 +93,7 @@ html, body {
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  z-index: 1000000000000000;
+  z-index: 100;
 }
 
 .Navigation {
@@ -249,9 +249,17 @@ html, body {
   width: 30rem;
 }
 
+.batch-select {
+  margin-top: 3px;
+}
 .RouteSelect2 {
   margin: 0.5rem;
   width: 12rem;
+}
+
+.RouteSelect3 {
+  margin: 0.5rem;
+  width: 18rem;
 }
 
 .flex-row {
@@ -1241,6 +1249,8 @@ html, body {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+
+  z-index: 100000000;
 }
 
 .Finish {
@@ -1357,6 +1367,8 @@ html, body {
   width: 20px;
   cursor: pointer;
   background-color: transparent;
+
+  transition: ease-in 0.2s;
 }
 
 .arrow:hover {
@@ -1371,10 +1383,77 @@ html, body {
 
 .right {
   transform: rotate(-45deg);
+  transition: ease-in 0.2s;
   -webkit-transform: rotate(-45deg);
 }
 
 .left {
   transform: rotate(135deg);
   -webkit-transform: rotate(135deg);
+}
+
+.down2 {
+  transform: rotate(45deg);
+  transition: ease-in 0.2s;
+}
+
+.DropdownButton {
+  background-color: #F5F6F8;
+  border-radius: 5px;
+  color: #8d8d8d;
+
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0.25rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  height: 2rem;
+
+  transition: ease-in 0.2s;
+
+  display: flex;
+  align-items: center;
+}
+
+.clicked {
+  background-color: #0F4C82;
+  color: white;
+  transition: ease-in 0.2s;
+}
+
+.Dropdown {
+  position: relative;
+}
+
+.arrow2 {
+  border: solid 3px #8d8d8d;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  height: 10px;
+  width: 10px;
+  background-color: transparent;
+}
+
+.arrow2clicked {
+  border: solid 3px white;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  height: 10px;
+  width: 10px;
+  background-color: transparent;
+}
+
+.PlusRight {
+  border: none;
+  background-color: transparent;
+  font-size: 3.3rem;
+  line-height: 28px;
+  height: 36px;
+  font-weight: bold;
+  cursor: pointer;
+  vertical-align: baseline;
+  top: 0;
 }

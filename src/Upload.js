@@ -1,5 +1,6 @@
 import React, { forwardRef, useEffect, useRef, useState, useCallback, useImperativeHandle } from 'react';
 import Select from 'react-select';
+import Creatable from 'react-select/creatable';
 import {useDropzone} from 'react-dropzone';
 import axios from 'axios';
 
@@ -50,7 +51,6 @@ function Dropzone(props) {
             </ul>
         </div>
     )
-
 }
 
 const SingleFileUpload = forwardRef((props, ref) => {
@@ -64,8 +64,11 @@ const SingleFileUpload = forwardRef((props, ref) => {
     const [routes, setRoutes] = useState([])
     const [checked, setChecked] = useState(props.checked)
     const [status, setStatus] = useState(props.status)
+    const [batch, setBatch] = useState(0)
+    const [batches, setBatches] = useState([])
 
     const selectRef = React.createRef()
+    const selectBatchRef = React.createRef()
 
     useEffect(() => {
         if (status == 'noRoute') {
@@ -101,13 +104,21 @@ const SingleFileUpload = forwardRef((props, ref) => {
                 console.log('should remove selection')
                 selectRef.current.state.value = null
                 setRoute('')
+                setBatch(0)
                 return
             }
             handleSelectChange(e)
-            selectRef.current.state.value = e
+            setBatch(0)
+            console.log(selectRef.current)
+            // selectRef.current.state.value = e
+        },
+        changeBatch: (e) => {
+            handleBatchSelectChange(e)
+            // selectRef.current.state.value = e
         },
         name: file.name,
         route: route,
+        batch: batch,
         status: status,
         checked: checked
     }))
@@ -241,6 +252,16 @@ const SingleFileUpload = forwardRef((props, ref) => {
         console.log(e.label)
     }
 
+    const handleBatchSelect = () => {
+        axios.post(instance_url + '/batch/route', {route: route}).then((res) => {
+            setBatches(res.data.map((batch) => ({value: batch.batch, label: batch.batch})))
+        })
+    }
+
+    const handleBatchSelectChange = (e) => {
+        setBatch(e.value)
+    }
+
     return(
         <div ref={props.ref} className="SingleFileUpload">
             <div className="SingleUploadLabel">
@@ -248,7 +269,8 @@ const SingleFileUpload = forwardRef((props, ref) => {
                 <label htmlFor={`checkbox-${file.name}`}>
                     {file.name}
                 </label>
-                <Select key={`select-route-${file.name}`} placeholder="Select route" ref={selectRef} options={routes} className="select-single3" isSearchable={false} onMenuOpen={handleSelect} onChange={handleSelectChange} />
+                <Select key={`select-route-${file.name}`} placeholder="Select route" ref={selectRef} value={route == "" ? null : {value: -1, label: route}} options={routes} className="select-single3" isSearchable={false} onMenuOpen={handleSelect} onChange={handleSelectChange} />
+                <Select key={`select-batch-${file.name}`} placeholder="Select batch" ref={selectBatchRef} value={batch == "" ? null : {value: -1, label: batch}} options={batches} className="select-single3 batch-select" isSearchable={false} onMenuOpen={handleBatchSelect} onChange={handleBatchSelectChange} />
             </div>
             <div className="StatusDisplay">
                 {getStatusDisplay()}
@@ -263,11 +285,15 @@ export default function Upload() {
 
     const [files, setFiles] = useState([])
     const [route, setRoute] = useState('')
+    const [batch, setBatch] = useState(0)
+    const [batches, setBatches] = useState([])
     const [routes, setRoutes] = useState([])
     const [statusControl, setStatusControl] = useState('ready')
     const [Uploads, setUploads] = useState([])
     const [all, setAll] = useState(false)
     const [instance, setInstance] = useState(false)
+    const [toggleDropdown, toggle] = useState(false)
+    const [max, setMax] = useState(0)
 
     useEffect(() => {
         axios.get(instance_url + "/instance/check").then(res => {
@@ -279,6 +305,10 @@ export default function Upload() {
             }
         })
     }, [])
+
+    useEffect(() => {
+        setBatch('')
+    }, [route])
 
     useEffect(() => {
         axios.get(instance_url + "/instance/check").then(res => {
@@ -366,7 +396,7 @@ export default function Upload() {
             let uploadState = upload.jsx.ref.current
             return ((uploadState.checked) && (uploadState.status == 'uploaded') && (uploadState.process() || 1))
         }).map((upload) => {
-            return {filename: upload.jsx.ref.current.name, route: upload.jsx.ref.current.route}
+            return {filename: upload.jsx.ref.current.name, route: upload.jsx.ref.current.batch, route: upload.jsx.ref.current.batch}
         })
         if (req.length) {
             axios.post(url + "/v2/process/process", req).then(res => {
@@ -400,19 +430,102 @@ export default function Upload() {
         setFiles(files)
     }
 
-    const handleSelect = (e) => {
+    const handleSelect = () => {
         axios.get(instance_url + '/routes').then((res) => {
             setRoutes([{value: 'nothing', label: 'Select individually'}].concat(res.data))
         })
     }
 
     const handleSelectChange = (e) => {
+        setRoute(e.label)
         for (let upload of Uploads) {
             let uploadState = upload.jsx.ref.current
             if (uploadState.checked) {
                 uploadState.changeRoute(e)
             }
         }
+    }
+
+    const handleCreateRoute = (e) => {
+        let req = {
+            route: e
+        }
+        console.log('inserting route:', e)
+        axios.post(instance_url + '/routes/insert', req).then(res => {
+            console.log(res.data)
+            if (res.data == 'Success!') {
+                handleSelectChange({value: 'creation', label: e})
+                setRoute(e)
+            }
+        }).catch(e => {console.log(e)})
+    }
+
+    const handleDropdown = () => {
+        console.log(toggleDropdown)
+        toggle((curr) => (!curr))
+    }
+
+    useEffect(() => {
+        axios.post(instance_url + '/batch/route2', {route: route}).then((res) => {
+            if (route != "") {
+                setBatches(([{value: 'creation', label: `+ New batch (${max + 1})`}]).concat(res.data.map((batch) => ({value: batch.batch, label: batch.batch}))))
+            } else {
+                setBatches(res.data.map((batch) => ({value: batch.batch, label: batch.batch})))
+            }
+            
+        }).catch((e => {
+            console.log(e)
+        }))
+    }, [max])
+
+    const handleBatchSelect = () => {
+        axios.post(instance_url + '/batch/max', {route: route}).then((res) => {
+            setMax(res.data.max)
+        }).catch(e => {
+            console.log(e)
+        })
+    }
+
+    const handleBatchSelectChange = (e) => {
+        if (e.value == 'creation') {
+            handleCreateBatch(max + 1)
+            return
+        }
+        setBatch(e.value)
+        for (let upload of Uploads) {
+            let uploadState = upload.jsx.ref.current
+            if (uploadState.checked) {
+                uploadState.changeBatch(e)
+            }
+        }
+    }
+
+    const handleCreateBatch = (e) => {
+        let req = {
+            route: route,
+            batch: e
+        }
+        axios.post(instance_url + '/batch/insert', req).then(res => {
+            console.log(res.data)
+            if (res.data == 'ok') {
+                setBatch(e)
+                for (let upload of Uploads) {
+                    let uploadState = upload.jsx.ref.current
+                    if (uploadState.checked) {
+                        uploadState.changeBatch({value: e, label: e})
+                    }
+                }
+            }
+        }).catch(e => {console.log(e)})
+    }
+
+    const batchCheck = (input) => {
+        const isNormalInteger = (str) => {
+            var n = Math.floor(Number(str));
+            return n !== Infinity && String(n) === str && n >= 0;
+        }
+        console.log(isNormalInteger(input))
+        return isNormalInteger(input)
     }
 
     return(
@@ -430,7 +543,12 @@ export default function Upload() {
                     <button className="btn3" onClick={handleProcess} disabled={!instance}>Process</button>
                     <button className="btn3" onClick={handleFinish} disabled={!instance}>Finish</button>
                     <button className="btn3" onClick={handleDelete} disabled={!instance}>Delete</button>
-                    <Select placeholder="Select for checked" key={`select-all`} options={routes} className="RouteSelect2" isSearchable={false} onMenuOpen={handleSelect} onChange={handleSelectChange} />
+                    <Dropdown isOpen={toggleDropdown} onClick={handleDropdown}>
+                        <Creatable placeholder="Select or insert route..." key={`select-all`} value={route == "" ? null : {value: -1, label: route}} options={routes} className="RouteSelect3" isSearchable={true} onMenuOpen={handleSelect} onChange={handleSelectChange} onCreateOption={handleCreateRoute} />
+                        <Select placeholder="Select or insert batch..." key={`select-batch-all`} value={batch == "" ? null : {value: -1, label: batch}} options={batches} isValidNewOption={batchCheck} className="RouteSelect3" isSearchable={true} onMenuOpen={handleBatchSelect} onChange={handleBatchSelectChange} />
+                    </Dropdown>
+                    {/* <Creatable placeholder="Select or insert route for checked" key={`select-all`} value={route == "" ? null : {value: -1, label: route}} options={routes} className="RouteSelect3" isSearchable={true} onMenuOpen={handleSelect} onChange={handleSelectChange} onCreateOption={handleCreateRoute} /> */}
+                    {/* <Select placeholder="Select for checked" key={`select-all`} options={routes} className="RouteSelect2" isSearchable={false} onMenuOpen={handleSelect} onChange={handleSelectChange} /> */}
                 </div>
                 <div className="UploadDisplay">
                     {Uploads.map((upload) => {return upload.jsx})}
@@ -439,3 +557,37 @@ export default function Upload() {
         </div>
     )
 }
+
+const Dropdown = ({children, isOpen, onClick, batch, route}) => (
+    <div className="Dropdown">
+        <div className={isOpen ? "DropdownButton clicked" : "DropdownButton"} onClick={onClick}>
+            {'For checked:'}&nbsp;&nbsp;<i className={isOpen ? "arrow2clicked down2" : "arrow2 right"} />
+        </div>
+        {isOpen ?
+            <div style={{
+                backgroundColor: 'white',
+                borderRadius: 4,
+                boxShadow: `0 0 0 1px hsla(218, 50%, 10%, 0.1), 0 4px 11px hsla(218, 50%, 10%, 0.1)`,
+                marginTop: 8,
+                position: 'absolute',
+                zIndex: 2,
+              }}>
+                {children}
+            </div>
+            :
+            null
+        }
+        {isOpen ? 
+        <div
+            style={{
+                bottom: 0,
+                left: 0,
+                top: 0,
+                right: 0,
+                position: 'fixed',
+                zIndex: 1,
+            }}
+            onClick={onClick}
+        /> : null}
+    </div>
+)

@@ -1,10 +1,15 @@
+/* Admin.js - hdkashd
+
+
+*/
+
 import React, { useRef, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import Fade, { Slide } from 'react-reveal';
 import Select from 'react-select';
 import axios from 'axios';
 import { useFilters, useTable } from 'react-table';
-import { Line } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 
 import Upload from './Upload';
 import Checkpoint from './Checkpoint';
@@ -109,6 +114,31 @@ export default function Admin(props) {
     const [routes, setRoutes] = useState([])
     const [currentBatch, setCB] = useState(0)
     const [CSVSource, setCSVSource] = useState('')
+    const [batches, setBatches] = useState([])
+    const [gBatch, setGB] = useState('')
+    const [bcBatch, setBCB] = useState(0)
+    const [bcRoute, setBCR] = useState('')
+
+    const [cRoute, setCRoute] = useState('')
+    const [cBatch, setCBatch] = useState(0)
+
+    useEffect(() => {console.log(cRoute)}, [cRoute])
+
+    const handleSelectChange3 = (e) => {
+        setCRoute(e.label)
+    }
+
+    const handleBatchSelect3 = () => {
+        axios.post(url + '/batch/route', {route: cRoute}).then((res) => {
+            setBatches(res.data.map((batch) => ({value: batch.batch, label: batch.batch})))
+            console.log(batches)
+        })
+    }
+
+    const handleBatchSelectChange3 = (e) => {
+        setCBatch(e.value)
+    }
+
     const [chartData, setCD] = useState(
         {
             labels: [],
@@ -131,6 +161,19 @@ export default function Admin(props) {
             ]
         }
     )
+    const [barChartData, setBCD] = useState({
+        labels: [],
+        backgroundColor: 'white',
+        datasets: [
+            {
+                label: '# of POIs',
+                data: [],
+                fill: false,
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgba(255, 99, 132, 0.2)'
+            }
+        ]
+    })
 
     const defaultData = {
         labels: [],
@@ -148,6 +191,20 @@ export default function Admin(props) {
                 fill: false,
                 backgroundColor: '#0F497D',
                 borderColor: '#E2ECF4'
+            }
+        ]
+    }
+
+    const defaultBCD = {
+        labels: [],
+        backgroundColor: 'white',
+        datasets: [
+            {
+                label: '# of POIs',
+                data: [],
+                fill: false,
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgba(255, 99, 132, 0.2)'
             }
         ]
     }
@@ -181,6 +238,7 @@ export default function Admin(props) {
     }
 
     const chartRef = useRef()
+    const barChartRef = useRef()
 
     const columns = React.useMemo(
         () => [
@@ -200,6 +258,17 @@ export default function Admin(props) {
                 }
             }
         }
+    }
+
+    const barChartOptions = {
+        scales: {
+            x: {
+                ticks: {
+                    display: false
+                }
+            }
+        },
+        indexAxis: 'y'
     }
 
     const columns1 = React.useMemo(
@@ -277,6 +346,10 @@ export default function Admin(props) {
     }
 
     useEffect(() => {
+        setBCB(0)
+    }, [bcRoute])
+
+    useEffect(() => {
         console.log(active)
         if (active != 'Upload & Process') {
             setConfirm(false)
@@ -302,6 +375,11 @@ export default function Admin(props) {
             })
         }
         if (active == 'Volunteer Management') {
+            axios.get(url + '/batch/current').then(res => {
+                setCB(parseInt(res.data.current))
+            }).catch(e => {
+                console.log(e)
+            })
             axios.get(url + '/instrumentation/codes').then(res => {
                 setCI(res.data)
             }).catch((e) => {
@@ -315,6 +393,11 @@ export default function Admin(props) {
         }
         if (active == 'Upload & Process') {
             getTracking()
+            axios.get(url + '/batch').then(res => {
+                setBatches([{value: 0, label: '0'}].concat(res.data.map((entry) => {
+                    return {value: entry.batch, label: entry.batch}
+                })))
+            })
         }
         if (active == 'System Control') {
             axios.get(url + '/batch/current').then(res => {
@@ -332,6 +415,56 @@ export default function Admin(props) {
             console.log(e)
         })
     }, [generatedCodes])
+
+    useEffect(() => {
+        renderHistogram()
+    }, [bcBatch, bcRoute])
+
+    const renderHistogram = () => {
+        if (bcBatch == '' || bcRoute == '') {
+            return
+        }
+        axios.post(url + '/data/histogram', {
+            batch: parseInt(bcBatch),
+            route: bcRoute
+        }).then((res) => {
+            console.log(res.data)
+            setBCD(() => {
+                let tempData = JSON.parse(JSON.stringify(defaultBCD))
+                for (const entry of res.data) {
+                    tempData.labels.push(entry.annotation_count)
+                    tempData.datasets[0].data.push(entry.number)
+                }
+                return tempData
+            })
+        }).catch(e => {
+            console.log(e)
+        })
+    }
+
+    const handleBatchSelect = () => {
+        axios.post(url + '/batch/route', {route: bcRoute}).then((res) => {
+            setBatches(res.data.map((batch) => ({value: batch.batch, label: batch.batch})))
+        })
+    }
+
+    const handleBatchSelect2 = () => {
+        axios.post(url + '/batch/route', {route: route}).then((res) => {
+            setBatches(res.data.map((batch) => ({value: batch.batch, label: batch.batch})))
+        })
+    }
+
+    const handleGBSelectChange = (e) => {
+        setGB(e.label)
+    }
+
+    const handleBCBSelectChange = (e) => {
+        setBCB(e.label)
+    }
+
+    const handleBCRSelectChange = (e) => {
+        setBCR(e.label)
+    }
 
     const SidebarButton = (label, icon) => {
         return (
@@ -372,6 +505,7 @@ export default function Admin(props) {
         let req = {
             code: props.code,
             threshold: thresholdRef.current.input,
+            batch: gBatch,
             route: route,
             number: generateRef.current.input
         }
@@ -409,7 +543,7 @@ export default function Admin(props) {
 
     const handleSelect = (e) => {
         axios.get(url + '/routes').then((res) => {
-            setRoutes([{value: 0, label: "All"}].concat(res.data))
+            setRoutes(res.data)
         })
     }
 
@@ -430,36 +564,29 @@ export default function Admin(props) {
 
     const handleRetire = (e) => {
         axios.post(url + '/batch/retire', {
-            batch: currentBatch
+            route: cRoute,
+            batch: cBatch
         }).then((res) => {
-            console.log(res)
+            if (res.data == 'ok') {
+                setCRoute('')
+                setCBatch(0)
+            }
         }).catch(e => {
             console.log(e)
         })
     }
 
-    const handlePrevBatch = () => {
-        axios.post(url + '/batch/set', {
-            new_batch: currentBatch + -1
-        }).then(() => {
-            setCB((curr) => {
-                return curr + -1
-            })
-        })
-    }
-
-    const handleNextBatch = () => {
-        axios.post(url + '/batch/set', {
-            new_batch: currentBatch + 1
-        }).then(() => {
-            setCB((curr) => {
-                return curr + 1
-            })
-        })
-    }
-
     const handleDelete = (e) => {
         console.log('deleting')
+    }
+
+    const checkBatch = () => {
+        let array = batches.map((entry) => {return entry.value})
+        if (currentBatch >= Math.max(...array)) {
+            return false
+        } else {
+            return true
+        }
     }
 
     const renderActive = () => {
@@ -521,11 +648,12 @@ export default function Admin(props) {
             return(
                 [
                     <div key="generate-codes" className="ContentSection" style={{'width': '20%'}}>
-                        <p className="SectionLabel">Generate codes</p>
+                        <div className="SectionLabel" style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}><span>Generate codes</span><br /></div>
                         <form autoComplete="off" className="GenerateForm">
+                            <Select menuPortalTarget={document.body} styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }} placeholder="Route for codes" key={`select-all-bc`} options={routes} className="RouteSelect2" isSearchable={false} onMenuOpen={handleSelect} onChange={handleSelectChange} />
+                            <Select menuPortalTarget={document.body} styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }} placeholder="Batch for codes..." key={`select-batch-generate`} options={batches} className="RouteSelect2" isSearchable={false} onMenuOpen={handleBatchSelect2} onChange={handleGBSelectChange} />
                             <FormField ref={generateRef} validateField={validateGenerateField} className="GenerateField" fieldName="generated" labelName="Number of codes to be generated" type="number" />
                             <FormField ref={thresholdRef} validateField={validateGenerateField} className="GenerateField" fieldName="threshold" labelName="Threshold" type="number" />
-                            <Select menuPortalTarget={document.body} styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }} placeholder="Route for codes" key={`select-all`} options={routes} className="RouteSelect2" isSearchable={false} onMenuOpen={handleSelect} onChange={handleSelectChange} />
                             <button className="btn3" type="button" onClick={handleGenerate}>Generate</button>
                         </form>
                     </div>,
@@ -534,6 +662,12 @@ export default function Admin(props) {
                         <div className="SectionContent">
                             <Table name="c" columns={columns} data={generatedCodes.length ? generatedCodes.map((code) => {return {code: code}}) : [{code: <span style={{color: 'gray'}}>Nothing to display.</span>}]} />
                         </div>
+                    </div>,
+                    <div key="generate-codes3" className="ContentSection" style={{'width': '50%'}}>
+                        <p className="SectionLabel">Batch and route annotation histogram</p>
+                        <Select menuPortalTarget={document.body} styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }} placeholder="Select route..." key={`select-route-bar-chart`} options={routes} className="RouteSelect2" isSearchable={false} onMenuOpen={handleSelect} onChange={handleBCRSelectChange} />
+                        <Select menuPortalTarget={document.body} styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }} placeholder="Select batch..." value={bcBatch == 0 ? null : {value: -1, label: bcBatch}} key={`select-batch`} options={batches} className="RouteSelect2" isSearchable={false} onMenuOpen={handleBatchSelect} onChange={handleBCBSelectChange} />
+                        <Bar ref={barChartRef} data={barChartData} options={barChartOptions} />
                     </div>,
                     <div key="generate-codes2" className="ContentSection" style={{'width': '70%', 'minHeight': '30%', 'maxHeight': '90%'}}>
                         <p className="SectionLabel" >Volunteer code monitoring</p>
@@ -549,22 +683,33 @@ export default function Admin(props) {
                             })} />
                         </div>
                     </div>
+                    
                 ]
             )
         }
         if (active == "Upload & Process") {
             return (
                 [
-                    <div key="insert-route" className="ContentSection" style={{'width': '30%'}}>
-                        <p className="SectionLabel" >Insert routes</p>
-                        <form autoComplete="off" className="GenerateForm">
-                            <FormField ref={insertRef} validateField={validateRouteField} className="GenerateField" fieldName="route" labelName="Insert route name" type="text" />
-                            <div className="flex-row">
-                                <button className="btn3" type="button" onClick={handleInsertRoute}>Add</button>
-                                {confirm && <span>&#10004;</span>}
-                            </div>
-                        </form>
-                    </div>,
+                    // <div key="insert-route" className="ContentSection" style={{'width': '30%'}}>
+                    //     <p className="SectionLabel" >Insert routes</p>
+                    //     <form autoComplete="off" className="GenerateForm">
+                    //         <FormField ref={insertRef} validateField={validateRouteField} className="GenerateField" fieldName="route" labelName="Insert route name" type="text" />
+                    //         <div className="flex-row">
+                    //             <button className="btn3" type="button" onClick={handleInsertRoute}>Add</button>
+                    //             {confirm && <span>&#10004;</span>}
+                    //         </div>
+                    //     </form>
+                    // </div>,
+                    // <div key="batch-control-upload" className="ContentSection" style={{'width': '100%'}}>
+                    //     <p className="SectionLabel">
+                    //         Current batch
+                    //     </p>
+                    //     <div className="BatchControl">
+                    //         <button className="arrow left" onClick={handlePrevBatch} disabled={currentBatch <= 0} />
+                    //         <div className="CurrentBatch">{currentBatch}</div>
+                    //         {checkBatch() ? <button className="arrow right" onClick={handleNextBatch} /> : <span className="PlusRight" onClick={handleNextBatch}>+</span>}
+                    //     </div>
+                    // </div>,
                     <div key="upload-process" className="ContentSection" style={{'width': '100%', 'zIndex': 10}}>
                         <p className="SectionLabel" >Upload and process files</p>
                         <Upload />
@@ -581,12 +726,11 @@ export default function Admin(props) {
                 [   
                     <div key="batch-control" className="ContentSection" style={{'width': '100%'}}>
                         <p className="SectionLabel">
-                            Current batch
+                            Batch control
                         </p>
                         <div className="BatchControl">
-                            <button className="arrow left" onClick={handlePrevBatch} disabled={currentBatch <= 0} />
-                            <div className="CurrentBatch">{currentBatch}</div>
-                            <button className="arrow right" onClick={handleNextBatch} />
+                        <Select menuPortalTarget={document.body} styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }} placeholder="Select route..." key={`select-route-bc`} options={routes} className="RouteSelect2" isSearchable={false} onMenuOpen={handleSelect} onChange={handleSelectChange3} />
+                        <Select menuPortalTarget={document.body} styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }} placeholder="Select batch..." key={`select-batch-generate-bc`} options={batches} className="RouteSelect2" isSearchable={false} onMenuOpen={handleBatchSelect3} onChange={handleBatchSelectChange3} />
                         </div>
                         <div className="BatchControl2">
                             <button className="btn3" type="button" onClick={handleRetire}>Retire</button>
@@ -713,7 +857,7 @@ export default function Admin(props) {
                 </div>
             </Slide>
             <Fade duration={1000} cascade>
-                <div onClick={handleClick} className="AdminContent" style={active == "Volunteer Management" ? {'flexDirection': 'column', 'height': 'calc(100vh - 150px)'} : {}}>
+                <div onClick={handleClick} className="AdminContent">
                     {renderActive()}
                 </div>
             </Fade>
