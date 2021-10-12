@@ -249,6 +249,11 @@ html, body {
   width: 30rem;
 }
 
+.tooltip {
+  z-index: 999;
+  width: 200px;
+}
+
 .batch-select {
   margin-top: 3px;
 }
@@ -259,7 +264,7 @@ html, body {
 
 .RouteSelect3 {
   margin: 0.5rem;
-  width: 18rem;
+  width: 20rem;
 }
 
 .flex-row {

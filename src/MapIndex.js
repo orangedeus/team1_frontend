@@ -262,7 +262,7 @@ export default function MapIndex(props) {
                         <label htmlFor="following">&#10060; COVID Regulations Violations (Manual)</label>
                     </div>
                     {/* <SliderButton options={4} width={'80%'} height={25} /> */}
-                    <input type="range" min={0} max={3} step={1}/>
+                    {/* <input type="range" min={0} max={3} step={1}/> */}
                 </div>
             </div>
         </MapContainer>

@@ -544,8 +544,8 @@ export default function Upload() {
                     <button className="btn3" onClick={handleFinish} disabled={!instance}>Finish</button>
                     <button className="btn3" onClick={handleDelete} disabled={!instance}>Delete</button>
                     <Dropdown isOpen={toggleDropdown} onClick={handleDropdown}>
-                        <Creatable placeholder="Select or insert route..." key={`select-all`} value={route == "" ? null : {value: -1, label: route}} options={routes} className="RouteSelect3" isSearchable={true} onMenuOpen={handleSelect} onChange={handleSelectChange} onCreateOption={handleCreateRoute} />
-                        <Select placeholder="Select or insert batch..." key={`select-batch-all`} value={batch == "" ? null : {value: -1, label: batch}} options={batches} isValidNewOption={batchCheck} className="RouteSelect3" isSearchable={true} onMenuOpen={handleBatchSelect} onChange={handleBatchSelectChange} />
+                        <Creatable placeholder="Select or type to create new route..." key={`select-all`} value={route == "" ? null : {value: -1, label: route}} options={routes} className="RouteSelect3" isSearchable={true} onMenuOpen={handleSelect} onChange={handleSelectChange} onCreateOption={handleCreateRoute} />
+                        <Select placeholder="Select or add new batch..." key={`select-batch-all`} value={batch == "" ? null : {value: -1, label: batch}} options={batches} isValidNewOption={batchCheck} className="RouteSelect3" isSearchable={true} onMenuOpen={handleBatchSelect} onChange={handleBatchSelectChange} />
                     </Dropdown>
                     {/* <Creatable placeholder="Select or insert route for checked" key={`select-all`} value={route == "" ? null : {value: -1, label: route}} options={routes} className="RouteSelect3" isSearchable={true} onMenuOpen={handleSelect} onChange={handleSelectChange} onCreateOption={handleCreateRoute} /> */}
                     {/* <Select placeholder="Select for checked" key={`select-all`} options={routes} className="RouteSelect2" isSearchable={false} onMenuOpen={handleSelect} onChange={handleSelectChange} /> */}

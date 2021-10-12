@@ -10,7 +10,7 @@ import Select from 'react-select';
 import axios from 'axios';
 import { useFilters, useTable } from 'react-table';
 import { Line, Bar } from 'react-chartjs-2';
-
+import ReactTooltip from 'react-tooltip';
 import Upload from './Upload';
 import Checkpoint from './Checkpoint';
 import FormField from './FormField';
@@ -590,6 +590,7 @@ export default function Admin(props) {
     }
 
     const renderActive = () => {
+        ReactTooltip.rebuild()
         if (active == "Dashboard") {
             return(
                 [
@@ -733,8 +734,14 @@ export default function Admin(props) {
                         <Select menuPortalTarget={document.body} styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }} placeholder="Select batch..." key={`select-batch-generate-bc`} options={batches} className="RouteSelect2" isSearchable={false} onMenuOpen={handleBatchSelect3} onChange={handleBatchSelectChange3} />
                         </div>
                         <div className="BatchControl2">
-                            <button className="btn3" type="button" onClick={handleRetire}>Retire</button>
-                            <button className="btn3" type="button" onClick={handleDelete}>Delete</button>
+                            <button className="btn3" type="button" onClick={handleRetire}>
+                                Retire &nbsp;
+                                <a data-tip="Removes videos of POIs with no COVID guideline violations, batch number is removed from any selection." data-for="retire-tip" >&#x1F6C8;</a>
+                            </button>
+                            <button className="btn3" type="button" onClick={handleDelete}>
+                                Delete &nbsp;
+                                <a data-tip="Completely removes POI and annotations (including videos)." data-for="delete-tip" >&#x1F6C8;</a>
+                            </button>
                         </div>
                     </div>,
                     <div key="backup" className="ContentSection" style={{'width': '25%'}}>
@@ -858,6 +865,8 @@ export default function Admin(props) {
             </Slide>
             <Fade duration={1000} cascade>
                 <div onClick={handleClick} className="AdminContent">
+                    <ReactTooltip place="right" type="dark" className="tooltip" id="retire-tip" />
+                    <ReactTooltip place="right" type="dark" className="tooltip" id="delete-tip" />
                     {renderActive()}
                 </div>
             </Fade>
