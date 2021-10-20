@@ -293,7 +293,7 @@ export default function Upload() {
     const [all, setAll] = useState(false)
     const [instance, setInstance] = useState(false)
     const [toggleDropdown, toggle] = useState(false)
-    const [max, setMax] = useState(0)
+    const [max, setMax] = useState(null)
 
     useEffect(() => {
         axios.get(instance_url + "/instance/check").then(res => {
@@ -466,12 +466,12 @@ export default function Upload() {
     }
 
     useEffect(() => {
-        console.log(batches)
-    }, [batches])
-
-    useEffect(() => {
         axios.post(instance_url + '/batch/route2', {route: route}).then((res) => {
-            setBatches(([{value: 'creation', label: `+ New batch (${max + 1})`}]).concat(res.data.map((batch) => ({value: batch.batch, label: batch.batch}))))
+            if (route != "") {
+                setBatches(([{value: 'creation', label: `+ New batch (${max + 1})`}]).concat(res.data.map((batch) => ({value: batch.batch, label: batch.batch}))))
+            } else {
+                setBatches([])
+            }
         }).catch((e => {
             console.log(e)
         }))
