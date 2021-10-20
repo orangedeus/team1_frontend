@@ -466,24 +466,25 @@ export default function Upload() {
     }
 
     useEffect(() => {
+        console.log(batches)
+    }, [batches])
+
+    useEffect(() => {
         axios.post(instance_url + '/batch/route2', {route: route}).then((res) => {
-            if (route != "") {
-                setBatches(([{value: 'creation', label: `+ New batch (${max + 1})`}]).concat(res.data.map((batch) => ({value: batch.batch, label: batch.batch}))))
-            } else {
-                setBatches(res.data.map((batch) => ({value: batch.batch, label: batch.batch})))
-            }
-            
+            setBatches(([{value: 'creation', label: `+ New batch (${max + 1})`}]).concat(res.data.map((batch) => ({value: batch.batch, label: batch.batch}))))
         }).catch((e => {
             console.log(e)
         }))
     }, [max])
 
     const handleBatchSelect = () => {
-        axios.post(instance_url + '/batch/max', {route: route}).then((res) => {
-            setMax(res.data.max)
-        }).catch(e => {
-            console.log(e)
-        })
+        if (route != "") {
+            axios.post(instance_url + '/batch/max', {route: route}).then((res) => {
+                setMax(res.data.max)
+            }).catch(e => {
+                console.log(e)
+            })
+        }
     }
 
     const handleBatchSelectChange = (e) => {
