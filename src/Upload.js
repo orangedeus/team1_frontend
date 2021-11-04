@@ -396,7 +396,7 @@ export default function Upload() {
             let uploadState = upload.jsx.ref.current
             return ((uploadState.checked) && (uploadState.status == 'uploaded') && (uploadState.process() || 1))
         }).map((upload) => {
-            return {filename: upload.jsx.ref.current.name, route: upload.jsx.ref.current.batch, route: upload.jsx.ref.current.batch}
+            return {filename: upload.jsx.ref.current.name, route: upload.jsx.ref.current.route, batch: upload.jsx.ref.current.batch}
         })
         if (req.length) {
             axios.post(url + "/v2/process/process", req).then(res => {
